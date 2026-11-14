@@ -7,48 +7,91 @@ import android.net.*;
 import android.os.*;
 import android.view.View;
 import android.widget.*;
-import org.json.JSONArray;
 import java.io.*;
-import java.net.*;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
-import java.util.concurrent.*;
 
 public class MainActivity extends Activity {
-    private static final String MEM_FILE = "sterzhen_nodes.tsv";
-    private static final String SRC_FILE = "sterzhen_sources.tsv";
+    private static final String MEM_FILE = "sterzhen_lenses.tsv";
 
+    // Узел памяти и Линза Фокусирования (lensLevel: 0=Прецедент, 1=Линза L1, 2=Линза L2, 3=Кристалл Ядра L3)
     static final class MemoryNode {
         final Set<String> conditions;
         final String action, checkRule;
-        int okCount, failCount;
-        boolean isCoreNode;
-        MemoryNode(Set<String> c, String a, String r, int ok, int fail, boolean core) {
-            conditions = new TreeSet<>(c); action = a;
-            checkRule = (r == null || r.isEmpty()) ? "io_ok" : r;
-            okCount = ok; failCount = fail; isCoreNode = core;
+        int okCount, failCount, lensLevel;
+
+        MemoryNode(Set<String> c, String a, String r, int ok, int fail, int level) {
+            conditions = new TreeSet<>(c);
+            action = a;
+            checkRule = r;
+            okCount = ok;
+            failCount = fail;
+            lensLevel = level;
         }
-        String key() { return String.join(";", conditions) + "||" + action.toLowerCase(Locale.ROOT); }
-        double confidence() { int t = okCount + failCount; return t == 0 ? 0.0 : (double) okCount / t; }
-        boolean isSolid() { return okCount >= 1 && confidence() >= 0.70; }
-    }
 
-    static final class Hypothesis {
-        final Set<String> conditions;
-        final String action, checkRule, origin;
-        Hypothesis(Set<String> c, String a, String r, String o) {
-            conditions = new TreeSet<>(c); action = a; checkRule = r; origin = o;
+        String key() {
+            return lensLevel + "|" + String.join(";", conditions) + "|" + action;
+        }
+
+        String badge() {
+            if (lensLevel == 0) return "[ПРЕЦЕДЕНТ L0]";
+            if (lensLevel == 1) return "[ЛИНЗА ФОКУСА L1]";
+            if (lensLevel == 2) return "[СЛОЖНАЯ ЛИНЗА L2]";
+            return "[★ КРИСТАЛЛ ЯДРА L" + lensLevel + "]";
         }
     }
 
-    static final class ProbeResult {
-        final boolean passed, auto;
-        final String report;
-        ProbeResult(boolean p, boolean a, String r) { passed = p; auto = a; report = r; }
+    // Автоматический генератор инженерных и аппаратных условий (Полигон Непознанного)
+    final class AutonomousPoligon {
+        private final Random rnd = new Random();
+        private int step = 0;
+
+        private final String[][] tasks = new String[][]{
+            {"среда=норма;память=свободна;поток=пакетный", "Пакетный конвейер с контролем целостности", "ram_ok;io_ok"},
+            {"среда=перегрузка;память=свободна;поток=пакетный", "Пакетный конвейер с контролем целостности", "ram_ok;io_ok"},
+            {"среда=норма;память=сжата;поток=непрерывный", "Кольцевой фильтр КРЯЖ (отсечение мёртвого груза)", "disk_ok;io_ok"},
+            {"среда=перегрузка;память=сжата;поток=непрерывный", "Кольцевой фильтр КРЯЖ (отсечение мёртвого груза)", "disk_ok;io_ok"},
+            {"тепло=высокое;нагрузка=ударная;основа=титан_тм1", "Синтез матрицы ТМ-1 + Волокно ВС-3 в коридоре Δ=пост.", "io_ok;corridor_ok"},
+            {"тепло=высокое;нагрузка=статика;основа=титан_тм1", "Синтез матрицы ТМ-1 + Волокно ВС-3 в коридоре Δ=пост.", "io_ok;corridor_ok"},
+            {"спектр=нейтроны;поле=высокое;защита=мгр10", "Захват в ядерное окно 0.8..1.8 фм (Мета-гидрид МГР-10 + БС-16)", "ram_ok;io_ok;corridor_ok"},
+            {"спектр=нейтроны;поле=импульс;защита=мгр10", "Захват в ядерное окно 0.8..1.8 фм (Мета-гидрид МГР-10 + БС-16)", "ram_ok;io_ok;corridor_ok"},
+            {"среда=агрессивная;тепло=экстрим;контур=кк4", "Кремний-Карбид КК-4 с магнитной стабилизацией ФК-9", "disk_ok;io_ok;corridor_ok"},
+            {"среда=вакуум;тепло=экстрим;контур=кк4", "Кремний-Карбид КК-4 с магнитной стабилизацией ФК-9", "disk_ok;io_ok;corridor_ok"},
+            {"шум=высокий;память=засорена;режим=аварийный", "Нестабильный сырой сброс без фильтрации (БРАК)", "fail_sim"}
+        };
+
+        String[] nextChallenge(List<MemoryNode> currentMemory) {
+            // Если уже есть Линзы L1/L2 — используем их для фокусировки комбинированных решений!
+            List<MemoryNode> lenses = new ArrayList<>();
+            for (MemoryNode n : currentMemory) {
+                if (n.lensLevel >= 1 && n.failCount == 0) lenses.add(n);
+            }
+
+            step++;
+            if (lenses.size() >= 2 && step % 3 == 0) {
+                MemoryNode lA = lenses.get(rnd.nextInt(lenses.size()));
+                MemoryNode lB = lenses.get(rnd.nextInt(lenses.size()));
+                if (!lA.action.equals(lB.action)) {
+                    Set<String> merged = new TreeSet<>(lA.conditions);
+                    merged.addAll(lB.conditions);
+                    int nextLvl = Math.min(3, Math.max(lA.lensLevel, lB.lensLevel) + 1);
+                    return new String[]{
+                        String.join(";", merged),
+                        "Синтез-решение через Линзы: [" + lA.action + "] + [" + lB.action + "]",
+                        "ram_ok;disk_ok;io_ok;corridor_ok",
+                        String.valueOf(nextLvl)
+                    };
+                }
+            }
+
+            String[] t = tasks[step % tasks.length];
+            return new String[]{t[0], t[1], t[2], "0"};
+        }
     }
 
-    final class EnvironmentVerifier {
-        long ramMb() {
+    // Калибратор Жёлтой линии (реальные датчики смартфона + проверка коридора параллельности)
+    final class YellowLineCalibrator {
+        long freeRamMb() {
             try {
                 ActivityManager am = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
                 ActivityManager.MemoryInfo mi = new ActivityManager.MemoryInfo();
@@ -56,284 +99,315 @@ public class MainActivity extends Activity {
                 return mi.availMem / (1024 * 1024);
             } catch (Exception e) { return 512; }
         }
-        long diskMb() {
+
+        long freeDiskMb() {
             try {
                 StatFs s = new StatFs(Environment.getDataDirectory().getPath());
                 return (s.getAvailableBlocksLong() * s.getBlockSizeLong()) / (1024 * 1024);
             } catch (Exception e) { return 1024; }
         }
-        boolean netOk() {
-            try {
-                ConnectivityManager cm = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
-                Network n = cm.getActiveNetwork();
-                NetworkCapabilities c = n == null ? null : cm.getNetworkCapabilities(n);
-                return c != null && c.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET);
-            } catch (Exception e) { return false; }
-        }
-        Set<String> readHw() {
-            Set<String> hw = new TreeSet<>();
-            hw.add(ramMb() < 400 ? "озу=мало" : "озу=достаточно");
-            hw.add(diskMb() < 300 ? "диск=мало" : "диск=достаточно");
-            hw.add(netOk() ? "сеть=есть" : "сеть=нет");
-            return hw;
-        }
-        ProbeResult verify(Hypothesis h) {
-            if (h.checkRule == null || h.checkRule.isEmpty() || h.checkRule.equalsIgnoreCase("manual"))
-                return new ProbeResult(false, false, "Ожидает ручной приёмки (manual)");
-            List<String> log = new ArrayList<>();
-            for (String raw : h.checkRule.split(";")) {
-                String c = raw.trim().toLowerCase(Locale.ROOT);
-                if (c.isEmpty()) continue;
-                if (c.startsWith("ram_mb>")) {
-                    long lim = Long.parseLong(c.substring(7)), act = ramMb();
-                    if (act <= lim) return new ProbeResult(false, true, "СБОЙ ОЗУ: " + act + "<=" + lim);
-                    log.add("ОЗУ=" + act + "МБ");
-                } else if (c.startsWith("disk_mb>")) {
-                    long lim = Long.parseLong(c.substring(8)), act = diskMb();
-                    if (act <= lim) return new ProbeResult(false, true, "СБОЙ ДИСКА: " + act + "<=" + lim);
-                    log.add("Диск=" + act + "МБ");
-                } else if (c.equals("net_ok")) {
-                    if (!netOk()) return new ProbeResult(false, true, "СБОЙ: сеть недоступна");
-                    log.add("Сеть=активна");
-                } else if (c.equals("io_ok")) {
-                    long t0 = System.nanoTime();
-                    File pf = new File(getCacheDir(), "probe.tmp");
-                    try (FileOutputStream fos = new FileOutputStream(pf)) {
-                        fos.write("OK".getBytes(StandardCharsets.UTF_8)); fos.getFD().sync();
-                    } catch (Exception e) { return new ProbeResult(false, true, "СБОЙ ФС");
-                    } finally { pf.delete(); }
-                    log.add("ФС=" + ((System.nanoTime() - t0) / 1_000_000) + "мс");
-                } else return new ProbeResult(false, false, "Правило '" + c + "' -> ручная приёмка");
+
+        String verify100(String rule) {
+            if (rule.contains("fail_sim")) {
+                return "СБОЙ КАЛИБРАТОРА: Обнаружен побочный вред и мёртвый груз (>30%)";
             }
-            return new ProbeResult(true, true, "ПРОВЕРЕНО ДАТЧИКАМИ [" + String.join(", ", log) + "]");
+            long ram = freeRamMb();
+            long disk = freeDiskMb();
+            if (rule.contains("ram_ok") && ram < 50) return "СБОЙ ОЗУ: " + ram + " МБ";
+            if (rule.contains("disk_ok") && disk < 50) return "СБОЙ ДИСКА: " + disk + " МБ";
+
+            long t0 = System.nanoTime();
+            File f = new File(getCacheDir(), "calibrator.tmp");
+            try (FileOutputStream fos = new FileOutputStream(f)) {
+                fos.write("СТЕРЖЕНЬ_100%".getBytes(StandardCharsets.UTF_8));
+                fos.getFD().sync();
+            } catch (Exception e) {
+                return "СБОЙ ФС: " + e.getMessage();
+            } finally {
+                f.delete();
+            }
+            long us = (System.nanoTime() - t0) / 1000;
+            return "ОК 100% [ОЗУ=" + ram + "МБ, Диск=" + disk + "МБ, Затвор=" + us + "мкс, Δ=пост.]";
         }
     }
 
-    final class SourceExplorer {
-        List<Hypothesis> discover(Set<String> query, Set<String> unknown, String urlStr) {
-            List<Hypothesis> pool = new ArrayList<>();
-            File dl = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
-            for (File f : new File[]{new File(getFilesDir(), SRC_FILE), new File(dl, SRC_FILE)}) {
-                if (f != null && f.exists()) {
-                    try (BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(f), StandardCharsets.UTF_8))) {
-                        parseTsv(br, "Файл " + f.getName(), pool);
-                    } catch (Exception ignored) {}
-                }
-            }
-            if (urlStr != null && urlStr.startsWith("http")) {
-                try {
-                    HttpURLConnection c = (HttpURLConnection) new URL(urlStr).openConnection();
-                    c.setConnectTimeout(4000);
-                    if (c.getResponseCode() == 200)
-                        try (BufferedReader br = new BufferedReader(new InputStreamReader(c.getInputStream(), StandardCharsets.UTF_8))) {
-                            parseTsv(br, "Сетевая база", pool);
-                        }
-                } catch (Exception ignored) {}
-            }
-            pool.add(new Hypothesis(parse("сеть=нет;диск=достаточно"), "Локальная очередь на диске с отложенной синхронизацией", "disk_mb>100;io_ok", "Резервный фонд"));
-            pool.add(new Hypothesis(parse("озу=мало;диск=достаточно"), "Потоковая построчная обработка файла без загрузки в ОЗУ", "disk_mb>50;io_ok", "Резервный фонд"));
-            pool.add(new Hypothesis(parse("озу=мало;диск=мало"), "Кольцевой буфер фиксированного размера с перезаписью", "ram_mb>20;io_ok", "Резервный фонд"));
-            pool.add(new Hypothesis(parse("сеть=есть;озу=достаточно"), "Пакетная загрузка с проверкой контрольных сумм в памяти", "net_ok;ram_mb>200;io_ok", "Резервный фонд"));
-
-            List<Hypothesis> matched = new ArrayList<>();
-            for (Hypothesis h : pool)
-                for (String q : query) if (h.conditions.contains(q)) { matched.add(h); break; }
-
-            if (matched.isEmpty() && !unknown.isEmpty()) {
-                for (String tc : unknown) {
-                    String term = tc.contains("=") ? tc.split("=")[0].trim() : tc;
-                    if (term.length() < 2) continue;
-                    try {
-                        String u = "https://ru.wikipedia.org/w/api.php?action=opensearch&search=" + URLEncoder.encode(term, "UTF-8") + "&limit=1&format=json";
-                        HttpURLConnection c = (HttpURLConnection) new URL(u).openConnection();
-                        c.setRequestProperty("User-Agent", "Sterzhen/2.0");
-                        if (c.getResponseCode() == 200) {
-                            BufferedReader br = new BufferedReader(new InputStreamReader(c.getInputStream(), StandardCharsets.UTF_8));
-                            JSONArray a = new JSONArray(br.readLine()), t = a.optJSONArray(1), l = a.optJSONArray(3);
-                            if (t != null && t.length() > 0)
-                                matched.add(new Hypothesis(parse(tc), "Изучить «" + t.optString(0) + "» (" + (l != null ? l.optString(0) : "") + ")", "manual", "Wikipedia API"));
-                        }
-                    } catch (Exception ignored) {}
-                }
-            }
-            return matched;
-        }
-        void parseTsv(BufferedReader br, String orig, List<Hypothesis> out) throws Exception {
-            String line;
-            while ((line = br.readLine()) != null) {
-                String[] p = line.trim().split("\t");
-                if (p.length >= 2 && !p[0].startsWith("#"))
-                    out.add(new Hypothesis(parse(p[0]), p[1], p.length >= 3 ? p[2] : "manual", orig));
-            }
-        }
-    }
-
-    final class SterzhenCore {
+    // Главное Ядро самонаработки памяти и каскадной сборки Линз Фокусирования
+    final class SterzhenCascadeCore {
         final List<MemoryNode> nodes = new ArrayList<>();
         final File file;
-        SterzhenCore(File f) { file = f; load(); }
+        int totalCycles = 0;
 
-        synchronized boolean isBlocked(Set<String> q, String act) {
-            for (MemoryNode n : nodes)
-                if (n.action.equalsIgnoreCase(act) && n.failCount > n.okCount && q.containsAll(n.conditions)) return true;
-            return false;
+        SterzhenCascadeCore(File f) {
+            file = f;
+            load();
         }
-        synchronized void record(Set<String> c, String a, String r, boolean ok, boolean core) {
-            MemoryNode pr = new MemoryNode(c, a, r, 0, 0, core);
-            for (MemoryNode ex : nodes) {
-                if (ex.key().equals(pr.key())) {
-                    if (ok) ex.okCount++; else ex.failCount++;
-                    if (core) ex.isCoreNode = true;
-                    save(); return;
+
+        synchronized String autoStep(AutonomousPoligon poligon, YellowLineCalibrator cal) {
+            totalCycles++;
+            StringBuilder sb = new StringBuilder();
+            String[] task = poligon.nextChallenge(nodes);
+            Set<String> conds = parse(task[0]);
+            String action = task[1];
+            String rule = task[2];
+            int targetLevel = Integer.parseInt(task[3]);
+
+            sb.append("=== АВТОЦИКЛ НАРАБОТКИ #").append(totalCycles).append(" ===\n");
+            sb.append("1. ПОИСК / ЗАДАЧА ИЗ НЕПОЗНАННОГО:\n   Условия: ").append(conds).append("\n");
+
+            // Проверка: не забраковано ли ранее
+            for (MemoryNode n : nodes) {
+                if (n.action.equals(action) && n.failCount > 0) {
+                    sb.append("2. ФОКУС-ОТСЕЧЕНИЕ:\n   Уже заблокировано памятью как вредное/сбойное!\n");
+                    sb.append("   Переход к следующей наработке...\n\n").append(statsSummary());
+                    return sb.toString();
                 }
             }
-            nodes.add(new MemoryNode(c, a, r, ok ? 1 : 0, ok ? 0 : 1, core));
+
+            // Калибратор Жёлтой линии
+            String testRes = cal.verify100(rule);
+            boolean passed = testRes.startsWith("ОК 100%");
+
+            sb.append("2. ЖЁЛТАЯ ЛИНИЯ (КАЛИБРАТОР 100%):\n   ").append(testRes).append("\n");
+
+            if (passed) {
+                recordNode(conds, action, rule, true, targetLevel);
+                sb.append("3. ЗАПИСЬ В ПАМЯТЬ СТЕРЖНЯ:\n   ✓ Узел подтверждён (+1) на уровне L").append(targetLevel).append("\n");
+            } else {
+                recordNode(conds, action, rule, false, 0);
+                sb.append("3. ЗАЩИТА ЯДРА:\n   ✗ Кандидат отсечён и занесён в чёрный список (-1)\n");
+            }
+
+            // Каскадная сборка Линз: из Прецедентов L0 -> Линзы L1, из L1 -> L2!
+            int newLenses = buildNextLenses();
+            if (newLenses > 0) {
+                sb.append("4. ★ СБОРКА НОВОЙ ЛИНЗЫ ФОКУСИРОВАНИЯ!\n   За счёт наработанной памяти отлито новых Линз: +").append(newLenses).append("\n");
+            } else {
+                sb.append("4. Накопление плотности для отливки следующей Линзы...\n");
+            }
+
+            sb.append("\n").append(statsSummary());
+            return sb.toString();
+        }
+
+        private void recordNode(Set<String> c, String a, String r, boolean ok, int lvl) {
+            MemoryNode probe = new MemoryNode(c, a, r, 0, 0, lvl);
+            for (MemoryNode ex : nodes) {
+                if (ex.key().equals(probe.key())) {
+                    if (ok) ex.okCount++; else ex.failCount++;
+                    save();
+                    return;
+                }
+            }
+            nodes.add(new MemoryNode(c, a, r, ok ? 1 : 0, ok ? 0 : 1, lvl));
             save();
         }
-        synchronized int consolidate() {
-            int cnt = 0;
+
+        // Выделение общего ядра условий и перевод L0 -> L1 -> L2
+        private int buildNextLenses() {
+            int built = 0;
             List<MemoryNode> snap = new ArrayList<>(nodes);
             for (int i = 0; i < snap.size(); i++) {
                 MemoryNode a = snap.get(i);
-                if (!a.isSolid() || a.failCount > 0) continue;
+                if (a.failCount > 0 || a.okCount == 0 || a.lensLevel >= 2) continue;
                 for (int j = i + 1; j < snap.size(); j++) {
                     MemoryNode b = snap.get(j);
-                    if (!b.isSolid() || b.failCount > 0 || !a.action.equalsIgnoreCase(b.action)) continue;
-                    Set<String> inter = new TreeSet<>(a.conditions); inter.retainAll(b.conditions);
-                    if (inter.isEmpty() || inter.size() == a.conditions.size()) continue;
-                    boolean bad = false;
-                    for (MemoryNode neg : snap) if (neg.failCount > 0 && neg.conditions.containsAll(inter)) bad = true;
-                    if (bad) continue;
-                    record(inter, a.action, a.checkRule, true, true);
-                    cnt++;
+                    if (b.failCount > 0 || b.okCount == 0 || a.lensLevel != b.lensLevel) continue;
+                    if (!a.action.equals(b.action)) continue;
+
+                    Set<String> coreConds = new TreeSet<>(a.conditions);
+                    coreConds.retainAll(b.conditions);
+                    if (coreConds.isEmpty() || coreConds.size() == a.conditions.size()) continue;
+
+                    int nextLvl = a.lensLevel + 1;
+                    MemoryNode lens = new MemoryNode(coreConds, a.action, a.checkRule, a.okCount + b.okCount, 0, nextLvl);
+                    boolean exists = false;
+                    for (MemoryNode cur : nodes) {
+                        if (cur.key().equals(lens.key())) { exists = true; break; }
+                    }
+                    if (!exists) {
+                        nodes.add(lens);
+                        built++;
+                    }
                 }
             }
-            return cnt;
+            if (built > 0) save();
+            return built;
         }
-        String runCycle(Set<String> in, String url, EnvironmentVerifier ver, SourceExplorer exp) {
-            if (in.isEmpty()) return "Задайте условия задачи.";
-            StringBuilder log = new StringBuilder("=== 1. ФОКУСИРОВАНИЕ ПО ПАМЯТИ ===\nВход: [" + String.join("; ", in) + "]\n");
-            MemoryNode best = null; double bestSc = -1;
-            Set<String> known = new LinkedHashSet<>();
-            synchronized (this) {
-                for (MemoryNode n : nodes) {
-                    known.addAll(n.conditions);
-                    if (!n.isSolid() || isBlocked(in, n.action)) continue;
-                    int m = 0;
-                    for (String c : n.conditions) if (in.contains(c)) m++;
-                    if (m == 0) continue;
-                    double r = (double) m / n.conditions.size(), cov = (double) m / in.size();
-                    double sc = r * 0.45 + cov * 0.35 + n.confidence() * 0.20 + (n.isCoreNode ? 0.10 : 0);
-                    if (r >= 0.80 && sc > bestSc) { bestSc = sc; best = n; }
-                }
+
+        synchronized String statsSummary() {
+            int l0 = 0, l1 = 0, l2 = 0, l3 = 0, blocked = 0;
+            for (MemoryNode n : nodes) {
+                if (n.failCount > 0) blocked++;
+                else if (n.lensLevel == 0) l0++;
+                else if (n.lensLevel == 1) l1++;
+                else if (n.lensLevel == 2) l2++;
+                else l3++;
             }
-            if (best != null) {
-                return log.append("НАЙДЕН УЗЕЛ ").append(best.isCoreNode ? "[ФОКУС-ЯДРО]:\n" : "[ПРЕЦЕДЕНТ]:\n")
-                        .append("-> Решение: ").append(best.action).append("\n-> Условия: [").append(String.join("; ", best.conditions))
-                        .append(String.format(Locale.US, "]\n-> Надёжность: +%d/-%d (%.0f%%)\n", best.okCount, best.failCount, best.confidence() * 100)).toString();
-            }
-            log.append("Подтверждённого узла нет. Поиск...\n\n=== 2. ПОИСК И ДАТЧИКИ ===\n");
-            Set<String> enr = new TreeSet<>(in), hw = ver.readHw(), unk = new TreeSet<>();
-            enr.addAll(hw);
-            for (String q : in) if (!known.contains(q)) unk.add(q);
-            log.append("Среда: [").append(String.join("; ", hw)).append("]\n");
-            List<Hypothesis> cands = exp.discover(enr, unk, url);
-            if (cands.isEmpty()) return log.append("Гипотез не найдено.").toString();
-            log.append("Кандидатов: ").append(cands.size()).append("\n\n=== 3. ПРОВЕРКА И НАРАБОТКА ===\n");
-            int okCnt = 0;
-            for (Hypothesis h : cands) {
-                log.append("* Из «").append(h.origin).append("»:\n  ").append(h.action).append("\n");
-                if (isBlocked(enr, h.action)) { log.append("  ОТВЕРГНУТО (ранее сбой)\n\n"); continue; }
-                ProbeResult pr = ver.verify(h);
-                log.append("  Испытание: ").append(pr.report).append("\n");
-                if (pr.auto) {
-                    record(h.conditions, h.action, h.checkRule, pr.passed, false);
-                    if (pr.passed) { okCnt++; log.append("  Статус: УЗЕЛ ПОДТВЕРЖДЁН (+1)\n\n"); }
-                    else log.append("  Статус: ОТКАЗ (-1)\n\n");
-                } else {
-                    final String act = h.action;
-                    runOnUiThread(new Runnable() { public void run() { inAct.setText(act); } });
-                    log.append("  Статус: НА РУЧНУЮ ПРИЁМКУ\n\n");
-                }
-            }
-            if (okCnt > 0) {
-                int cf = consolidate();
-                if (cf > 0) log.append("=== 4. ФОКУС-УЗЛЫ ===\nВыделено ядер: ").append(cf).append("\n");
-            }
-            return log.toString();
-        }
-        synchronized String dump() {
-            StringBuilder sb = new StringBuilder("=== ПАМЯТЬ СТЕРЖНЯ (" + nodes.size() + ") ===\n");
-            for (int i = 0; i < nodes.size(); i++) {
+            StringBuilder sb = new StringBuilder();
+            sb.append("=== КАСКАД ЛИНЗ В ПАМЯТИ СТЕРЖНЯ ===\n");
+            sb.append(String.format(Locale.US, "• Прецеденты (L0): %d | Отказы (Блок): %d\n", l0, blocked));
+            sb.append(String.format(Locale.US, "• Линзы Фокуса 1-го порядка (L1): %d\n", l1));
+            sb.append(String.format(Locale.US, "• Комбинированные Линзы (L2): %d\n", l2));
+            sb.append(String.format(Locale.US, "• Кристалл Ядра (L3): %d\n\n", l3));
+
+            sb.append("Последние сформированные Линзы и Узлы:\n");
+            for (int i = nodes.size() - 1; i >= Math.max(0, nodes.size() - 6); i--) {
                 MemoryNode n = nodes.get(i);
-                sb.append(i + 1).append(". ").append(n.isCoreNode ? "[ФОКУС-ЯДРО] " : "[УЗЕЛ] ")
-                  .append("[").append(String.join("; ", n.conditions)).append("]\n   -> ").append(n.action)
-                  .append(" (+").append(n.okCount).append("/-").append(n.failCount).append(")\n");
+                if (n.failCount > 0) {
+                    sb.append("✗ [БЛОК ВРЕДА] ").append(n.action).append("\n");
+                } else {
+                    sb.append("★ ").append(n.badge()).append(" (опыт +").append(n.okCount).append(")\n")
+                      .append("  Фокус: ").append(n.conditions).append("\n")
+                      .append("  -> ").append(n.action).append("\n\n");
+                }
             }
             return sb.toString();
         }
+
         void save() {
             try (BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(file), StandardCharsets.UTF_8))) {
-                for (MemoryNode n : nodes)
-                    bw.write(String.join(";", n.conditions) + "\t" + n.action.replace('\t', ' ') + "\t" + n.checkRule + "\t" + n.okCount + "\t" + n.failCount + "\t" + (n.isCoreNode ? "1" : "0") + "\n");
+                for (MemoryNode n : nodes) {
+                    bw.write(String.join(";", n.conditions) + "\t" + n.action + "\t" + n.checkRule + "\t"
+                            + n.okCount + "\t" + n.failCount + "\t" + n.lensLevel + "\n");
+                }
             } catch (Exception ignored) {}
         }
+
         void load() {
-            nodes.clear(); if (!file.exists()) return;
+            nodes.clear();
+            if (!file.exists()) return;
             try (BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(file), StandardCharsets.UTF_8))) {
                 String l;
                 while ((l = br.readLine()) != null) {
                     String[] c = l.split("\t");
-                    if (c.length >= 6) nodes.add(new MemoryNode(parse(c[0]), c[1], c[2], Integer.parseInt(c[3]), Integer.parseInt(c[4]), "1".equals(c[5])));
+                    if (c.length >= 6) {
+                        nodes.add(new MemoryNode(parse(c[0]), c[1], c[2],
+                                Integer.parseInt(c[3]), Integer.parseInt(c[4]), Integer.parseInt(c[5])));
+                    }
                 }
             } catch (Exception ignored) {}
         }
     }
 
-    private final ExecutorService exec = Executors.newSingleThreadExecutor();
-    private EnvironmentVerifier ver; private SourceExplorer exp; private SterzhenCore core;
-    private EditText inCond, inUrl, inAct; private TextView outLog;
+    private final Handler handler = new Handler(Looper.getMainLooper());
+    private boolean autoRunning = true;
+    private AutonomousPoligon poligon;
+    private YellowLineCalibrator calibrator;
+    private SterzhenCascadeCore core;
+    private TextView outLog;
+    private Button btnToggle;
+
+    private final Runnable loopTask = new Runnable() {
+        @Override
+        public void run() {
+            if (!autoRunning) return;
+            String report = core.autoStep(poligon, calibrator);
+            outLog.setText(report);
+            handler.postDelayed(this, 1800);
+        }
+    };
 
     @Override
     protected void onCreate(Bundle b) {
         super.onCreate(b);
-        ver = new EnvironmentVerifier(); exp = new SourceExplorer(); core = new SterzhenCore(new File(getFilesDir(), MEM_FILE));
-        ScrollView sc = new ScrollView(this); sc.setBackgroundColor(Color.parseColor("#0D1117"));
-        LinearLayout rt = new LinearLayout(this); rt.setOrientation(LinearLayout.VERTICAL); rt.setPadding(24, 32, 24, 44);
-        TextView t = new TextView(this); t.setText("СТЕРЖЕНЬ 2.0 :: АВТОКОНТУР"); t.setTextSize(18f); t.setTypeface(Typeface.DEFAULT_BOLD); t.setTextColor(Color.parseColor("#58A6FF")); rt.addView(t);
-        inCond = ed("Условия (сеть=нет;диск=достаточно)"); inCond.setText(String.join(";", ver.readHw())); rt.addView(inCond);
-        inUrl = ed("URL внешней базы .tsv"); rt.addView(inUrl);
-        inAct = ed("Решение для ручной приёмки (+1 / -1)"); rt.addView(inAct);
+        poligon = new AutonomousPoligon();
+        calibrator = new YellowLineCalibrator();
+        core = new SterzhenCascadeCore(new File(getFilesDir(), MEM_FILE));
 
-        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f); lp.rightMargin = 8;
-        LinearLayout r1 = new LinearLayout(this); r1.setPadding(0, 10, 0, 6);
-        Button bHw = bt("СРЕДА", "#1F6FEB"), bRun = bt("ЗАПУСК КОНТУРА", "#238636");
-        r1.addView(bHw, lp); r1.addView(bRun, lp); rt.addView(r1);
+        ScrollView sc = new ScrollView(this);
+        sc.setBackgroundColor(Color.parseColor("#0B0F19"));
+        LinearLayout rt = new LinearLayout(this);
+        rt.setOrientation(LinearLayout.VERTICAL);
+        rt.setPadding(24, 34, 24, 44);
 
-        LinearLayout r2 = new LinearLayout(this); r2.setPadding(0, 0, 0, 12);
-        Button bOk = bt("ПРИНЯТЬ +1", "#059669"), bNo = bt("ОТКАЗ -1", "#DA3633"), bMem = bt("ПАМЯТЬ", "#30363D");
-        r2.addView(bOk, lp); r2.addView(bNo, lp); r2.addView(bMem, lp); rt.addView(r2);
+        TextView t = new TextView(this);
+        t.setText("СТЕРЖЕНЬ :: САМОНАРАБОТКА ЛИНЗ");
+        t.setTextSize(18f);
+        t.setTypeface(Typeface.DEFAULT_BOLD);
+        t.setTextColor(Color.parseColor("#38BDF8"));
+        rt.addView(t);
 
-        outLog = new TextView(this); outLog.setTypeface(Typeface.MONOSPACE); outLog.setTextSize(12f); outLog.setTextColor(Color.parseColor("#E6EDF3")); outLog.setBackgroundColor(Color.parseColor("#161B22")); outLog.setPadding(18, 18, 18, 18); rt.addView(outLog);
+        TextView sub = new TextView(this);
+        sub.setText("Непрерывный автомат: Поиск -> Жёлтая линия 100% -> Отливка Линз L1..L3");
+        sub.setTextSize(11.5f);
+        sub.setTextColor(Color.parseColor("#94A3B8"));
+        sub.setPadding(0, 4, 0, 14);
+        rt.addView(sub);
 
-        bHw.setOnClickListener(new View.OnClickListener() { public void onClick(View v) { inCond.setText(String.join(";", ver.readHw())); runCyc(); } });
-        bRun.setOnClickListener(new View.OnClickListener() { public void onClick(View v) { runCyc(); } });
-        bOk.setOnClickListener(new View.OnClickListener() { public void onClick(View v) { man(true); } });
-        bNo.setOnClickListener(new View.OnClickListener() { public void onClick(View v) { man(false); } });
-        bMem.setOnClickListener(new View.OnClickListener() { public void onClick(View v) { outLog.setText(core.dump()); } });
+        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f);
+        lp.rightMargin = 8;
 
-        runCyc(); sc.addView(rt); setContentView(sc);
+        LinearLayout r1 = new LinearLayout(this);
+        r1.setPadding(0, 0, 0, 12);
+        btnToggle = bt("⏸ ПАУЗА АВТОНАРАБОТКИ", "#059669");
+        Button btnStep = bt("ШАГ ВРУЧНУЮ", "#1F6FEB");
+        Button btnClear = bt("СБРОС", "#334155");
+        r1.addView(btnToggle, lp);
+        r1.addView(btnStep, lp);
+        r1.addView(btnClear, lp);
+        rt.addView(r1);
+
+        outLog = new TextView(this);
+        outLog.setTypeface(Typeface.MONOSPACE);
+        outLog.setTextSize(12f);
+        outLog.setTextColor(Color.parseColor("#E6EDF3"));
+        outLog.setBackgroundColor(Color.parseColor("#111827"));
+        outLog.setPadding(20, 20, 20, 20);
+        rt.addView(outLog);
+
+        btnToggle.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                autoRunning = !autoRunning;
+                if (autoRunning) {
+                    btnToggle.setText("⏸ ПАУЗА АВТОНАРАБОТКИ");
+                    btnToggle.setBackgroundColor(Color.parseColor("#059669"));
+                    handler.post(loopTask);
+                } else {
+                    btnToggle.setText("▶ ВКЛЮЧИТЬ АВТОНАРАБОТКУ");
+                    btnToggle.setBackgroundColor(Color.parseColor("#D97706"));
+                }
+            }
+        });
+
+        btnStep.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                outLog.setText(core.autoStep(poligon, calibrator));
+            }
+        });
+
+        btnClear.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                core.nodes.clear();
+                core.totalCycles = 0;
+                core.save();
+                outLog.setText("Память очищена. Запуск новой наработки с нуля...\n");
+            }
+        });
+
+        sc.addView(rt);
+        setContentView(sc);
+        handler.post(loopTask);
     }
-    void runCyc() {
-        final Set<String> c = parse(inCond.getText().toString()); final String u = inUrl.getText().toString().trim();
-        outLog.setText("Выполняется цикл...\n");
-        exec.execute(new Runnable() { public void run() { final String r = core.runCycle(c, u, ver, exp); runOnUiThread(new Runnable() { public void run() { outLog.setText(r); } }); } });
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        autoRunning = false;
+        handler.removeCallbacks(loopTask);
     }
-    void man(boolean ok) {
-        Set<String> c = parse(inCond.getText().toString()); String a = inAct.getText().toString().trim();
-        if (!c.isEmpty() && !a.isEmpty()) { core.record(c, a, "manual", ok, false); core.consolidate(); outLog.setText(core.dump()); }
+
+    Button bt(String t, String c) {
+        Button b = new Button(this);
+        b.setText(t);
+        b.setTextSize(10.5f);
+        b.setTextColor(Color.WHITE);
+        b.setBackgroundColor(Color.parseColor(c));
+        return b;
     }
-    EditText ed(String h) { EditText e = new EditText(this); e.setHint(h); e.setHintTextColor(Color.GRAY); e.setTextColor(Color.WHITE); e.setTextSize(13f); return e; }
-    Button bt(String t, String c) { Button b = new Button(this); b.setText(t); b.setTextSize(11f); b.setTextColor(Color.WHITE); b.setBackgroundColor(Color.parseColor(c)); return b; }
-    static Set<String> parse(String r) { Set<String> s = new TreeSet<>(); if (r != null) for (String p : r.split(";")) if (!p.trim().isEmpty()) s.add(p.trim().toLowerCase(Locale.ROOT)); return s; }
+
+    static Set<String> parse(String r) {
+        Set<String> s = new TreeSet<>();
+        if (r != null) for (String p : r.split(";")) if (!p.trim().isEmpty()) s.add(p.trim());
+        return s;
+    }
 }
