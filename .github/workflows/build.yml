@@ -14,11 +14,6 @@ jobs:
         run: |
           BUILD_TOOLS=$(ls -d /usr/local/lib/android/sdk/build-tools/* | tail -n 1)
           PLATFORM=/usr/local/lib/android/sdk/platforms/android-33/android.jar
-          if [ ! -f "$PLATFORM" ]; then
-            sdkmanager "platforms;android-33" "build-tools;33.0.2"
-            BUILD_TOOLS=/usr/local/lib/android/sdk/build-tools/33.0.2
-            PLATFORM=/usr/local/lib/android/sdk/platforms/android-33/android.jar
-          fi
 
           mkdir -p build/gen build/obj build/apk
           "$BUILD_TOOLS/aapt" package -f -m -J build/gen -S res -M AndroidManifest.xml -I "$PLATFORM"
