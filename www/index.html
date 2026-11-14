@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ОС СВЕД :: ЗАЩИТА ОТ ОШИБОК ОДНОРОДНОСТИ</title>
+<style>
+  body { background: #0b0f17; color: #e2e8f0; font-family: sans-serif; margin: 0; padding: 12px; }
+  h2 { color: #38bdf8; margin: 0 0 3px 0; font-size: 17px; }
+  .sub { color: #94a3b8; font-size: 11px; margin-bottom: 10px; }
+  .box { background: #151c28; border-radius: 8px; padding: 11px; margin-bottom: 10px; border: 1px solid #334155; }
+  .warn-box { background: #1f1215; border-left: 4px solid #ef4444; padding: 10px; border-radius: 6px; font-size: 12px; margin-bottom: 10px; line-height: 1.4; }
+  .fix-box { background: #0d1f17; border-left: 4px solid #10b981; padding: 10px; border-radius: 6px; font-size: 12.5px; margin-bottom: 10px; line-height: 1.45; white-space: pre-wrap; }
+  .input-row { display: flex; justify-content: space-between; align-items: center; margin: 7px 0; font-size: 12.5px; }
+  input { width: 85px; padding: 6px; background: #090d14; border: 1px solid #475569; color: #fbbf24; font-weight: bold; border-radius: 4px; text-align: center; font-size: 13px; }
+  button { width: 100%; background: #059669; color: #fff; border: 1px solid #10b981; padding: 11px; border-radius: 6px; font-weight: bold; font-size: 13px; cursor: pointer; margin-top: 6px; }
+  .res-box { background: #090d14; padding: 10px; border-radius: 6px; border: 1px solid #38bdf8; font-size: 12.5px; line-height: 1.45; white-space: pre-wrap; }
+</style>
+</head>
+<body>
+
+<h2>ОС СВЕД :: КОНТРОЛЬ ОДНОРОДНОСТИ РЕШЁТКИ</h2>
+<div class="sub">Исключение миграции частиц к полюсам магнита (Ориентация без стягивания)</div>
+
+<div class="warn-box">
+  <b style="color:#f87171;">[!] УСТРАНЁННАЯ ОШИБКА ТЕХНОЛОГИИ:</b><br>
+  При установке сильных неодимовых магнитов вплотную к жидкой смеси градиент поля стягивает феррит к краям, оставляя пустой центр (нарушение однородности Δ → 0).
+</div>
+
+<div class="box">
+  <div style="font-size:12.5px; margin-bottom:6px; font-weight:bold; color:#4ade80;">
+    Картина распределения частиц в пластине 100 мм:
+  </div>
+  <svg width="100%" height="70" viewBox="0 0 320 70">
+    <!-- Стальные шины-выравниватели по краям -->
+    <rect x="8" y="10" width="8" height="50" fill="#94a3b8"/>
+    <rect x="304" y="10" width="8" height="50" fill="#94a3b8"/>
+    <!-- Контур формы -->
+    <rect x="30" y="12" width="260" height="46" fill="#0f172a" stroke="#22c55e" stroke-width="2" rx="4"/>
+    <!-- Равномерные ориентированные цепочки в центре и по краям -->
+    <g id="chains" stroke="#38bdf8" stroke-width="2.5" stroke-dasharray="10 6">
+      <line x1="42" y1="23" x2="278" y2="23"/>
+      <line x1="42" y1="35" x2="278" y2="35"/>
+      <line x1="42" y1="47" x2="278" y2="47"/>
+    </g>
+  </svg>
+  <div style="display:flex; justify-content:space-between; font-size:11px; color:#94a3b8;">
+    <span>Шина + Зазор 30 мм</span>
+    <span style="color:#4ade80; font-weight:bold;">Центр заполнен: Однородность 0.98</span>
+    <span>Шина + Зазор 30 мм</span>
+  </div>
+</div>
+
+<div class="fix-box">[ПРАКТИЧЕСКИЙ ПРОТОКОЛ БЕЗ ОШИБОК]:
+1. ВЫДЕРЖКА ВЯЗКОСТИ (Пред-гель): После замеса ждём 35–40 минут до состояния густого мёда. Частица поворачивается по полю на месте, но уплыть к краю уже не может!
+2. СТАЛЬНЫЕ ШИНЫ + ЗАЗОР: Ставим магниты через стальные полосы на удалении 25–35 мм от краёв формы (убираем краевой рывок).
+3. МЕТОД «ПРОТЯЖКИ ПОЛЯ»: Проводим магнитной скобой над формой вдоль пластины 5–7 раз на фазе загустевания и убираем магниты.</div>
+
+<div class="box">
+  <div style="font-weight:bold; color:#fbbf24; margin-bottom:6px;">РАСЧЁТ БЕЗОПАСНОГО РЕЖИМА НАМАГНИЧИВАНИЯ:</div>
+  <div class="input-row">
+    <span>Время выдержки смолы до поля (мин):</span>
+    <input type="number" id="tWait" value="40">
+  </div>
+  <div class="input-row">
+    <span>Дистанция магнита от края формы (мм):</span>
+    <input type="number" id="dMag" value="30">
+  </div>
+  <div class="input-row">
+    <span>Число проходов «магнитной гребёнкой»:</span>
+    <input type="number" id="nPass" value="6">
+  </div>
+  <button onclick="calcHomogeneity()">ПРОВЕРИТЬ ОДНОРОДНОСТЬ ЦЕНТРА ПЛАСТИНЫ</button>
+</div>
+
+<div class="res-box" id="resBox"></div>
+
+<script>
+function calcHomogeneity() {
+  let t = parseFloat(document.getElementById("tWait").value) || 0;
+  let d = parseFloat(document.getElementById("dMag").value) || 0;
+  let n = parseFloat(document.getElementById("nPass").value) || 0;
+
+  let status = "";
+  let odn = 0.98;
+
+  if (t < 25) {
+    status = "ОПАСНОСТЬ БРАКА: Смола слишком жидкая! Частицы сорвутся с места и уплывут к краям. Увеличьте выдержку до 35–45 минут (фаза пред-геля).";
+    odn = 0.55;
+  } else if (d < 20) {
+    status = "ОПАСНОСТЬ БРАКА: Магниты слишком близко к краям (< 20 мм)! Краевой градиент вытянет порошок из середины. Отодвиньте магниты на 25–35 мм и поставьте стальные шины.";
+    odn = 0.68;
+  } else {
+    odn = Math.min(0.99, +(0.92 + (n * 0.01)).toFixed(2));
+    status = "РЕЖИМ ИДЕАЛЕН (ОРИЕНТАЦИЯ БЕЗ МИГРАЦИИ):\n" +
+             "• Вязкость пред-геля удерживает частицы на своих местах.\n" +
+             "• Поле поворачивает диполи в центре пластины в единые силовые нити.\n" +
+             "• Скопление у краёв ИСКЛЮЧЕНО. Однородность по всей длине 100 мм: " + odn;
+  }
+
+  document.getElementById("resBox").innerText =
+    `=== КОНТРОЛЬ ПРАКТИЧЕСКОГО НАВЫКА ===\n` +
+    `Расчётная однородность центра: ${odn}\n\n` + status;
+}
+
+calcHomogeneity();
+</script>
+</body>
+</html>

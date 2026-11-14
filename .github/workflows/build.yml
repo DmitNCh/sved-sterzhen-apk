@@ -1,4 +1,4 @@
-name: Build SVED APK
+name: Build Sterzhen 2.0
 on: [push]
 jobs:
   build:
@@ -16,13 +16,13 @@ jobs:
           PL=$(ls -d $SDK/platforms/android-* | tail -n 1)/android.jar
           mkdir -p build/gen build/obj build/apk
           "$BT/aapt" package -f -m -J build/gen -S res -M AndroidManifest.xml -I "$PL"
-          javac -encoding UTF-8 -source 1.8 -target 1.8 -bootclasspath "$PL" -classpath "$PL" -d build/obj build/gen/ru/sved/sterzhen/R.java src/ru/sved/sterzhen/MainActivity.java
-          "$BT/d8" --lib "$PL" --output build/apk/ build/obj/ru/sved/sterzhen/*.class
-          "$BT/aapt" package -f -M AndroidManifest.xml -S res -A assets -I "$PL" -F build/u.apk build/apk/
+          javac -encoding UTF-8 -source 1.8 -target 1.8 -bootclasspath "$PL" -classpath "$PL" -d build/obj build/gen/ru/sterzhen/app/R.java src/ru/sterzhen/app/MainActivity.java
+          "$BT/d8" --lib "$PL" --output build/apk/ build/obj/ru/sterzhen/app/*.class
+          "$BT/aapt" package -f -M AndroidManifest.xml -S res -I "$PL" -F build/u.apk build/apk/
           "$BT/zipalign" -f -p 4 build/u.apk build/a.apk
-          keytool -genkeypair -v -keystore debug.keystore -storepass android -alias a -keypass android -keyalg RSA -keysize 2048 -validity 10000 -dname "CN=SVED,O=S,C=RU"
-          "$BT/apksigner" sign --ks debug.keystore --ks-pass pass:android --key-pass pass:android --out sved-sterzhen.apk build/a.apk
+          keytool -genkeypair -v -keystore debug.keystore -storepass android -alias a -keypass android -keyalg RSA -keysize 2048 -validity 10000 -dname "CN=S,O=S,C=RU"
+          "$BT/apksigner" sign --ks debug.keystore --ks-pass pass:android --key-pass pass:android --out sterzhen-v2.apk build/a.apk
       - uses: actions/upload-artifact@v4
         with:
-          name: sved-sterzhen-apk
-          path: sved-sterzhen.apk
+          name: sterzhen-v2-apk
+          path: sterzhen-v2.apk
