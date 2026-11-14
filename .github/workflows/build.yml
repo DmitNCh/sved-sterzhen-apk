@@ -10,16 +10,14 @@ jobs:
         with:
           distribution: 'temurin'
           java-version: '17'
-      - name: Setup Android SDK
-        uses: android-actions/setup-android@v3
       - name: Compile and Package APK
         run: |
-          BUILD_TOOLS=$(ls -d $ANDROID_HOME/build-tools/* | tail -n 1)
-          PLATFORM=$ANDROID_HOME/platforms/android-33/android.jar
+          BUILD_TOOLS=$(ls -d /usr/local/lib/android/sdk/build-tools/* | tail -n 1)
+          PLATFORM=/usr/local/lib/android/sdk/platforms/android-33/android.jar
           if [ ! -f "$PLATFORM" ]; then
             sdkmanager "platforms;android-33" "build-tools;33.0.2"
-            BUILD_TOOLS=$ANDROID_HOME/build-tools/33.0.2
-            PLATFORM=$ANDROID_HOME/platforms/android-33/android.jar
+            BUILD_TOOLS=/usr/local/lib/android/sdk/build-tools/33.0.2
+            PLATFORM=/usr/local/lib/android/sdk/platforms/android-33/android.jar
           fi
 
           mkdir -p build/gen build/obj build/apk
