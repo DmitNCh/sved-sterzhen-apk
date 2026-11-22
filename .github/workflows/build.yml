@@ -23,6 +23,13 @@ jobs:
           keytool -genkeypair -v -keystore debug.keystore -storepass android -alias a -keypass android -keyalg RSA -keysize 2048 -validity 10000 -dname "CN=S,O=S,C=RU"
           "$BT/apksigner" sign --ks debug.keystore --ks-pass pass:android --key-pass pass:android --out sterzhen-v2.apk build/a.apk
       - uses: actions/upload-artifact@v4
+      - name: Выложить чистый APK в репозиторий
+        run: |
+          cp $(find . -name "*.apk" | head -n 1) ./Кубкод.apk
+          git config user.name "DmitNCh"
+          git config user.email "dmit@local"
+          git add Кубкод.apk
+          git commit -m "Готовый Кубкод.apk" && git push
         with:
           name: sterzhen-v2-apk
           path: sterzhen-v2.apk
