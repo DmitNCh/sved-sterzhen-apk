@@ -2,156 +2,188 @@
 <html lang="ru">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>АВТО-ОПТИКА OUKITEL G1</title>
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>МНЕМОСХЕМА КУБА</title>
 <style>
-*{box-sizing:border-box;margin:0;padding:0;user-select:none}
-body{background:#0d1117;color:#fff;font-family:sans-serif;display:flex;flex-direction:column;height:100vh;overflow:hidden}
-.top{background:#161b22;padding:10px;text-align:center;border-bottom:2px solid #00e676}
-.top h1{font-size:15px;color:#00e676}
-.top p{font-size:11px;color:#8b949e;margin-top:2px}
-.scr{flex:1;background:#000;position:relative;display:flex;justify-content:center;align-items:center;overflow:hidden}
-video{display:none}
-canvas{max-width:100%;max-height:100%;object-fit:contain}
-.tel{background:#161b22;padding:6px 10px;border-top:1px solid #30363d;display:flex;justify-content:space-around;font-size:11px;color:#8b949e;text-align:center}
-.tel b{color:#00e676;display:block;font-size:12px}
-.ctrl{background:#0d1117;padding:10px;display:flex;flex-direction:column;gap:8px}
-.row{display:flex;gap:8px}
-button,.lbl-btn{flex:1;padding:12px 8px;border:none;border-radius:8px;font-weight:bold;font-size:13px;cursor:pointer;text-align:center;display:block}
-.b-cam{background:#0288d1;color:#fff}
-.b-gal{background:#30363d;color:#fff}
-.b-auto{background:#00e676;color:#000}
-.b-orig{background:#21262d;color:#ffeb3b;border:1px solid #ffeb3b}
-.b-save{background:#ff9100;color:#000;font-size:15px;padding:14px}
-input[type=file]{display:none}
+*{box-sizing:border-box;margin:0;padding:0;font-family:'Courier New',monospace}
+body{background:#060a0f;color:#d8e2dc;display:flex;flex-direction:column;height:100vh;overflow:hidden;user-select:none}
+.hdr{background:#0b131e;padding:8px 10px;border-bottom:1px solid #1b263b}
+.ttl{color:#48cae4;font-size:14px;font-weight:bold;margin-bottom:6px;display:flex;justify-content:space-between}
+.tabs{display:grid;grid-template-columns:repeat(3,1fr);gap:5px}
+.tb{background:#111a27;border:1px solid #22334b;color:#778da9;font-size:11px;font-weight:bold;padding:7px 2px;text-align:center;border-radius:6px}
+.tb.on{background:#0c4a2c;border-color:#2dc653;color:#fff}
+.sts{color:#778da9;font-size:11px;margin-top:5px;white-space:nowrap;overflow:hidden}
+.scr{display:none;flex:1;flex-direction:column;overflow:hidden}.scr.on{display:flex}
+.vp{height:155px;display:flex;align-items:center;justify-content:center;background:radial-gradient(circle,#0d1b2a 0%,#060a0f 75%)}
+.wb{background:#0a121c;padding:5px 8px;border-top:1px solid #162436;border-bottom:1px solid #162436;display:flex;gap:5px;overflow-x:auto}
+.wc{background:#16283d;border:1px solid #2b4c73;color:#90e0ef;font-size:11px;font-weight:bold;padding:5px 8px;border-radius:5px;white-space:nowrap}
+.ed{flex:1;margin:5px 10px;background:#0b131e;border:1.5px solid #1e6091;border-radius:9px;padding:7px 10px;display:flex;flex-direction:column;min-height:90px}
+.edh{color:#90e0ef;font-size:11px;margin-bottom:4px;display:flex;justify-content:space-between}
+textarea{flex:1;width:100%;background:transparent;border:none;color:#fff;font-size:13px;line-height:1.4;resize:none;outline:none}
+.con{margin:3px 10px;background:#030508;border:1px solid #1b263b;border-radius:8px;padding:6px 8px;height:85px;overflow-y:auto;font-size:11px;line-height:1.35}
+.pad{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;padding:5px 10px 10px 10px}
+.btn{background:#131d2b;border:1px solid #22334b;border-radius:8px;color:#d8e2dc;font-size:11px;font-weight:bold;padding:11px 2px;text-align:center}
+.btn.act{background:#0c4a2c;border:1.5px solid #2dc653;color:#fff}
+.btn.bld{background:#14532d;border:1.5px solid #2dc653;color:#fff}
+.ac{flex:1;padding:10px;overflow-y:auto;display:flex;flex-direction:column;gap:10px}
+.card{background:#0b131e;border:1.5px solid #1e6091;border-radius:10px;padding:10px}
+.cttl{color:#4ad66d;font-size:14px;font-weight:bold;margin-bottom:8px;border-bottom:1px solid #1b263b;padding-bottom:5px}
+.inp{width:100%;background:#060a0f;border:1px solid #2b4c73;color:#fff;padding:8px;border-radius:6px;font-size:14px;margin:4px 0 8px 0}
+.ubtn{background:#14532d;border:1.5px solid #2dc653;color:#fff;padding:12px;border-radius:8px;font-size:13px;font-weight:bold;text-align:center;margin-top:4px}
+.tbl{background:#030609;border:1.5px solid #2dc653;border-radius:8px;padding:10px;display:flex;justify-content:space-between;margin-bottom:8px}
+.grid{padding:12px;display:grid;grid-template-columns:repeat(2,1fr);gap:10px;overflow-y:auto}
+.tile{background:#0b131e;border:1.5px solid #219ebc;border-radius:10px;padding:14px 8px;text-align:center}
 </style>
 </head>
 <body>
-<div class="top">
-    <h1>ТЕРМИНАЛ ОПТИКИ OUKITEL G1</h1>
-    <p id="st">Адаптивная авто-фокусировка четкости, контраста и цвета</p>
+<div class="hdr">
+  <div class="ttl"><span>МНЕМОСХЕМА КУБА | РУССКАЯ СРЕДА</span><span id="nc" style="color:#4ad66d">УЗЛОВ: 2</span></div>
+  <div class="tabs">
+    <div class="tb on" id="t1" onclick="sm(1)">1. КУЗНИЦА</div>
+    <div class="tb" id="t2" onclick="sm(2)">2. ПРИЛОЖЕНИЕ</div>
+    <div class="tb" id="t3" onclick="sm(3)">3. ОБОЛОЧКА</div>
+  </div>
+  <div class="sts" id="st">УЗЕЛ: [Пульт_Сигнала] | ГРАНЬ: [3] 03_ЛОГИКА</div>
 </div>
-<div class="scr">
-    <video id="v" autoplay playsinline></video>
-    <canvas id="c"></canvas>
+
+<div class="scr on" id="s1">
+  <div class="vp">
+    <svg width="320" height="150" viewBox="0 0 360 185">
+      <polygon points="125,12 295,12 255,45 85,45" fill="#0d2137" stroke="#219ebc" stroke-width="1.8"/>
+      <polygon points="255,45 295,12 295,125 255,158" fill="#081421" stroke="#219ebc" stroke-width="1.8"/>
+      <polygon points="85,45 255,45 255,158 85,158" fill="#0a3622" stroke="#2dc653" stroke-width="2.5"/>
+      <text x="190" y="33" fill="#a8dadc" font-size="11" text-anchor="middle">05_КОНТРОЛЬ</text>
+      <text x="6" y="105" fill="#a8dadc" font-size="11">01_ВХОД ▸</text>
+      <text x="300" y="95" fill="#a8dadc" font-size="11">◂ 04_СВЯЗЬ</text>
+      <text x="115" y="177" fill="#a8dadc" font-size="11" text-anchor="middle">02_ПАМЯТЬ</text>
+      <text x="172" y="177" fill="#a8dadc" font-size="11" text-anchor="middle">───▸</text>
+      <text x="230" y="177" fill="#a8dadc" font-size="11" text-anchor="middle">06_ВЫХОД</text>
+      <text x="170" y="95" fill="#2dc653" font-size="13" font-weight="bold" text-anchor="middle" id="cf">03_ЛОГИКА</text>
+      <text x="170" y="122" fill="#e0fbfc" font-size="12" text-anchor="middle" id="cn">[Пульт_Сигнала]</text>
+    </svg>
+  </div>
+  <div class="wb" id="wb"></div>
+  <div class="ed">
+    <div class="edh"><span id="et">03_ЛОГИКА / стержень.куб</span><span style="color:#ffd166" onclick="ca.value='';D[cur][fc]='';sv()">[ОЧИСТИТЬ]</span></div>
+    <textarea id="ca" spellcheck="false"></textarea>
+  </div>
+  <div class="con" id="cb"></div>
+  <div class="pad">
+    <div class="btn" id="b1" onclick="sf(1)">1:ВХОД</div>
+    <div class="btn" id="b2" onclick="sf(2)">2:ПАМЯТЬ</div>
+    <div class="btn act" id="b3" onclick="sf(3)">3:ЛОГИКА</div>
+    <div class="btn" id="b4" onclick="sf(4)">4:СВЯЗЬ</div>
+    <div class="btn" id="b5" onclick="sf(5)">5:КОНТРОЛЬ</div>
+    <div class="btn" id="b6" onclick="sf(6)">6:ВЫХОД</div>
+    <div class="btn" onclick="sm(2)">ЛИК ЭКРАНА</div>
+    <div class="btn" onclick="sm(3)">ОБОЛОЧКА</div>
+    <div class="btn" onclick="nn()">НОВЫЙ</div>
+    <div class="btn" onclick="sn()">УЗЕЛ</div>
+    <div class="btn" onclick="pt()">ПУТЬ</div>
+    <div class="btn bld" onclick="bd()">СБОРКА</div>
+  </div>
 </div>
-<div class="tel">
-    <div>Фокус/Четкость<b id="t1">АВТО</b></div>
-    <div>Тени (HDR)<b id="t2">АВТО</b></div>
-    <div>Контраст<b id="t3">АВТО</b></div>
-    <div>Цветность<b id="t4">АВТО</b></div>
-</div>
-<div class="ctrl">
-    <div class="row">
-        <button class="b-cam" onclick="startLiveCam()">📹 ЖИВАЯ КАМЕРА</button>
-        <label class="lbl-btn b-gal">🖼️ ФОТО СНЯТЬ/ГАЛЕРЕЯ<input type="file" id="f" accept="image/*"></label>
+
+<div class="scr" id="s2">
+  <div class="ac">
+    <div class="card">
+      <div class="cttl" id="at">ПРИЛОЖЕНИЕ</div>
+      <div id="ai"></div>
+      <div id="ao" style="margin-top:10px"></div>
     </div>
-    <div class="row">
-        <button class="b-auto" onclick="toggleAuto()" id="btnA">✨ АВТО-УЛУЧШЕНИЕ: ВКЛ</button>
-        <button class="b-orig" ontouchstart="autoOn=false;if(mode=='img')drawImg()" ontouchend="autoOn=true;if(mode=='img')drawImg()">👁️ СРАВНИТЬ</button>
+    <div class="card">
+      <div class="cttl">МАШИННЫЙ ПОТОК (СПЛАВ)</div>
+      <div id="al" style="font-size:11.5px;line-height:1.4;color:#90e0ef"></div>
     </div>
-    <button class="b-save" onclick="save()">💾 СДЕЛАТЬ И СОХРАНИТЬ ЧЕТКИЙ СНИМОК</button>
+  </div>
 </div>
+
+<div class="scr" id="s3">
+  <div style="padding:10px 12px 0 12px;color:#90e0ef;font-size:12px;font-weight:bold">УСТАНОВЛЕННЫЕ РУССКИЕ ПРИЛОЖЕНИЯ:</div>
+  <div class="grid" id="sg"></div>
+</div>
+
 <script>
-const v=document.getElementById('v'),c=document.getElementById('c'),ctx=c.getContext('2d',{willReadFrequently:true});
-let mode='none',img=null,autoOn=true;
+const F={
+1:["01_ВХОД","вход.куб",[["+ Ввод",'Ввод "Сигнал" -> Сигнал'],["+ Кнопка",'Кнопка "ЗАЛП" -> ЗАЛП Пуск']]],
+2:["02_ПАМЯТЬ","память.куб",[["+ Ячейка","Ячейка Сигнал = 60"],["+ Постоянная","Постоянная Предел = 500"]]],
+3:["03_ЛОГИКА","стержень.куб",[["+ Усилить","Усилить Сигнал в 4"],["+ Сложить","Сложить Сигнал, 25"],["+ Вычесть","Вычесть Сигнал, 10"],["+ ЗАЛП","ЗАЛП Импульс (ТАКТОВ = 19, СИЛА = 255)"]]],
+4:["04_СВЯЗЬ","связь.куб",[["+ Сцепить","Сцепить [Пульт_Сигнала] == [Привод]"]]],
+5:["05_КОНТРОЛЬ","контроль.куб",[["+ Если > Стоп","Если Сигнал > Предел -> Стоп"]]],
+6:["06_ВЫХОД","выход.куб",[["+ Табло",'Табло "Мощность:" <- Сигнал'],["+ Выдать","Выдать Сигнал -> Порт_Привода"]]]};
 
-function toggleAuto(){
-    autoOn=!autoOn;
-    document.getElementById('btnA').innerText=autoOn?"✨ АВТО-УЛУЧШЕНИЕ: ВКЛ":"✨ АВТО-УЛУЧШЕНИЕ: ВЫКЛ";
-    document.getElementById('btnA').style.background=autoOn?"#00e676":"#555";
-    if(mode==='img')drawImg();
+let D=JSON.parse(localStorage.getItem("kk_apk_v2"))||{
+"Пульт_Сигнала":{
+1:'Ввод "Входной Сигнал" -> Сигнал\nВвод "Добавка" -> Добавка\nКнопка "ВЫПОЛНИТЬ ЗАЛП" -> ЗАЛП Пуск',
+2:'Ячейка Сигнал = 60\nЯчейка Добавка = 15\nПостоянная Предел = 500',
+3:'Усилить Сигнал в 4\nСложить Сигнал, Добавка\nЗАЛП Преобразование (ТАКТОВ = 19, СИЛА = 255)',
+4:'Сцепить [Пульт_Сигнала] == [Привод]',
+5:'Если Сигнал > Предел -> Стоп',
+6:'Табло "Итоговая Мощность:" <- Сигнал\nВыдать Сигнал -> Порт_Привода'},
+"Учет_Запаса":{
+1:'Ввод "Приход" -> Приход\nВвод "Расход" -> Расход\nКнопка "ПЕРЕСЧИТАТЬ" -> ЗАЛП Учет',
+2:'Ячейка Запас = 1000\nЯчейка Приход = 200\nЯчейка Расход = 80\nПостоянная Минимум = 50',
+3:'Сложить Запас, Приход\nВычесть Запас, Расход',
+4:'Сцепить [Учет_Запаса] == [Склад]',
+5:'Если Запас < Минимум -> Стоп',
+6:'Табло "Текущий Остаток:" <- Запас'}};
+
+let cur=Object.keys(D)[0],fc=3,RV={};
+const ca=document.getElementById("ca"),cb=document.getElementById("cb");
+ca.oninput=()=>{D[cur][fc]=ca.value;sv()};
+function sv(){localStorage.setItem("kk_apk_v2",JSON.stringify(D))}
+function lg(t,c="#90e0ef"){cb.innerHTML+=`<div style="color:${c};margin-bottom:2px">${t}</div>`;cb.scrollTop=999}
+function sm(m){
+  for(let i=1;i<=3;i++){document.getElementById("t"+i).className=i===m?"tb on":"tb";document.getElementById("s"+i).className=i===m?"scr on":"scr"}
+  if(m===2)rApp();if(m===3)rSh();
 }
-
-async function startLiveCam(){
-    try{
-        const s=await navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:"environment"},width:{ideal:1920},height:{ideal:1080}}});
-        v.srcObject=s; mode='cam';
-        document.getElementById('st').innerText="Живая камера: Авто-анализ в реальном времени";
-        requestAnimationFrame(loop);
-    }catch(e){
-        alert("Для живого потока используйте кнопку правее (Снять/Галерея)");
+function ui(){
+  document.getElementById("nc").textContent="УЗЛОВ: "+Object.keys(D).length;
+  document.getElementById("st").textContent=`УЗЕЛ: [${cur}] | ГРАНЬ: [${fc}] ${F[fc][0]}`;
+  document.getElementById("cf").textContent=F[fc][0];document.getElementById("cn").textContent=`[${cur}]`;
+  document.getElementById("et").textContent=`МОДУЛЬ ГРАНИ [${F[fc][0]} / ${F[fc][1]}]`;
+  ca.value=D[cur][fc]||"";
+  for(let i=1;i<=6;i++)document.getElementById("b"+i).className=i===fc?"btn act":"btn";
+  const w=document.getElementById("wb");w.innerHTML="";
+  F[fc][2].forEach(c=>{let b=document.createElement("div");b.className="wc";b.textContent=c[0];b.onclick=()=>{ca.value=(ca.value?ca.value+"\n":"")+c[1];D[cur][fc]=ca.value;sv()};w.appendChild(b)});
+}
+function sf(n){fc=n;ui();lg(`[КОНТУР] Узел: ${cur} | Грань: ${F[n][0]}`,"#4ad66d")}
+function nn(){let n=prompt("Русское имя нового приложения:","Узел_"+(Object.keys(D).length+1));if(!n)return;n=n.trim().replace(/\s+/g,"_");D[n]=JSON.parse(JSON.stringify(D["Пульт_Сигнала"]));cur=n;RV={};sv();ui()}
+function sn(){let k=Object.keys(D);cur=k[(k.indexOf(cur)+1)%k.length];RV={};ui()}
+function pt(){lg(`[ПУТЬ] ${cur}: 01_ВХОД ➔ 02_ПАМЯТЬ ➔ 03_ЛОГИКА ➔ 05_КОНТРОЛЬ ➔ 06_ВЫХОД`,"#ffd166")}
+function ex(){
+  let M={},C={},L=[],t=1,st=0,V=x=>!isNaN(parseInt(x))?parseInt(x):(x in C?C[x]:(M[x]||0));
+  (D[cur][2]||"").split("\n").forEach(l=>{let m=l.trim().match(/^(Ячейка|Постоянная)\s+([А-Яа-яЁё0-9_]+)\s*=\s*(-?\d+)/i);if(m){if(m[1].toLowerCase()==="ячейка"){M[m[2]]=(m[2] in RV)?RV[m[2]]:+m[3];L.push(`Такт ${t++} [ПАМЯТЬ]: ${m[2]} = ${M[m[2]]}`)}else{C[m[2]]=+m[3];L.push(`Вплавлено [ПОСТОЯННАЯ]: ${m[2]} = ${m[3]} (0 тактов)`)}}});
+  (D[cur][3]||"").split("\n").forEach(l=>{let s=l.trim(),m;
+    if(m=s.match(/^Усилить\s+([А-Яа-яЁё0-9_]+)\s+в\s+([А-Яа-яЁё0-9_]+)/i)){M[m[1]]=(M[m[1]]||0)*V(m[2]);L.push(`Такт ${t++} [СТЕРЖЕНЬ]: Усилить ${m[1]} => ${M[m[1]]}`)}
+    if(m=s.match(/^Сложить\s+([А-Яа-яЁё0-9_]+)\s*,\s*([А-Яа-яЁё0-9_]+)/i)){M[m[1]]=(M[m[1]]||0)+V(m[2]);L.push(`Такт ${t++} [СТЕРЖЕНЬ]: Сложить ${m[1]} => ${M[m[1]]}`)}
+    if(m=s.match(/^Вычесть\s+([А-Яа-яЁё0-9_]+)\s*,\s*([А-Яа-яЁё0-9_]+)/i)){M[m[1]]=(M[m[1]]||0)-V(m[2]);L.push(`Такт ${t++} [СТЕРЖЕНЬ]: Вычесть ${m[1]} => ${M[m[1]]}`)}
+    if(m=s.match(/^ЗАЛП\s+([А-Яа-яЁё0-9_]+)\s*\(\s*ТАКТОВ\s*=\s*(\d+)\s*,\s*СИЛА\s*=\s*(\d+)\s*\)/i))L.push(`Такт ${t++} [ЗАЛП]: ${m[1]} (Тактов: ${m[2]}, Сила: ${m[3]})`);
+  });
+  (D[cur][5]||"").split("\n").forEach(l=>{let m=l.trim().match(/^Если\s+([А-Яа-яЁё0-9_]+)\s*([<>!=]+)\s*([А-Яа-яЁё0-9_]+)\s*->\s*([А-Яа-яЁё0-9_]+)/i);if(m){let a=V(m[1]),b=V(m[3]),ok=m[2]==="<"?a<b:a>b;if(ok){st=1;L.push(`Такт ${t++} [КОНТРОЛЬ]: (${a} ${m[2]} ${b}) ➔ СТОП`)}else L.push(`Такт ${t++} [КОНТРОЛЬ]: (${a} ${m[2]} ${b}) ➔ Поток открыт`)}});
+  return {M,L};
+}
+function bd(){cb.innerHTML="";let r=ex();r.L.forEach(x=>lg(x));lg(`✔ [УСТАНОВЛЕНО] Приложение «${cur}» собрано! Открываю...`,"#4ad66d");setTimeout(()=>sm(2),500)}
+function rApp(){
+  document.getElementById("at").textContent="ПРИЛОЖЕНИЕ: "+cur;
+  let r=ex(),ai=document.getElementById("ai"),ao=document.getElementById("ao");ai.innerHTML="";ao.innerHTML="";
+  (D[cur][1]||"").split("\n").forEach(l=>{let m;
+    if(m=l.trim().match(/^Ввод\s+"([^"]+)"\s*->\s*([А-Яа-яЁё0-9_]+)/i)){
+      let k=m[2],v=r.M[k]||0;ai.innerHTML+=`<div style="font-size:12px;color:#a8dadc">${m[1]} (${k}):</div><input class="inp" type="number" value="${v}" onchange="RV['${k}']=+this.value;rApp()">`;
     }
+    if(m=l.trim().match(/^Кнопка\s+"([^"]+)"/i))ai.innerHTML+=`<div class="ubtn" onclick="rApp()">▶ ${m[1]}</div>`;
+  });
+  let r2=ex();
+  (D[cur][6]||"").split("\n").forEach(l=>{let m=l.trim().match(/^Табло\s+"([^"]+)"\s*<-\s*([А-Яа-яЁё0-9_]+)/i);
+    if(m)ao.innerHTML+=`<div class="tbl"><span>${m[1]}</span><b style="color:#ffd166;font-size:18px">${r2.M[m[2]]||0}</b></div>`;
+  });
+  document.getElementById("al").innerHTML=r2.L.join("<br>");
 }
-
-document.getElementById('f').onchange=e=>{
-    const file=e.target.files[0]; if(!file)return;
-    const i=new Image();
-    i.onload=()=>{img=i; mode='img'; drawImg();};
-    i.src=URL.createObjectURL(file);
-};
-
-function loop(){
-    if(mode==='cam' && v.readyState===v.HAVE_ENOUGH_DATA){
-        c.width=720; c.height=Math.round(720*(v.videoHeight/v.videoWidth));
-        ctx.drawImage(v,0,0,c.width,c.height);
-        if(autoOn) processSmartISP();
-    }
-    if(mode==='cam') requestAnimationFrame(loop);
+function rSh(){
+  const g=document.getElementById("sg");g.innerHTML="";
+  Object.keys(D).forEach(k=>{let d=document.createElement("div");d.className="tile";d.innerHTML=`<div style="font-size:24px;color:#4ad66d;margin-bottom:6px">❖</div><b style="color:#fff">${k}</b><div style="font-size:10px;color:#778da9;margin-top:4px">Русский Узел [6 граней]</div>`;d.onclick=()=>{cur=k;RV={};ui();sm(2)};g.appendChild(d)});
 }
-
-function drawImg(){
-    if(!img)return;
-    const max=1280; let w=img.width,h=img.height;
-    if(w>max||h>max){if(w>h){h=Math.round(h*(max/w));w=max}else{w=Math.round(w*(max/h));h=max}}
-    c.width=w; c.height=h;
-    ctx.drawImage(img,0,0,w,h);
-    if(autoOn) processSmartISP();
-}
-
-function processSmartISP(){
-    const w=c.width,h=c.height;
-    const imgData=ctx.getImageData(0,0,w,h),d=imgData.data;
-    let sumL=0,sumS=0,dark=0,minL=255,maxL=0;
-    const step=16, samples=(w*h)/4;
-    for(let i=0;i<d.length;i+=step){
-        const r=d[i],g=d[i+1],b=d[i+2];
-        const l=0.299*r+0.587*g+0.114*b;
-        sumL+=l; if(l<85)dark++; if(l<minL)minL=l; if(l>maxL)maxL=l;
-        const mx=Math.max(r,g,b),mn=Math.min(r,g,b);
-        sumS+=mx===0?0:(mx-mn)/mx;
-    }
-    const avgL=sumL/samples, avgS=sumS/samples, darkR=dark/samples;
-    const shBoost=Math.min(0.65,Math.max(0.20,darkR*0.9+(128-avgL)/300));
-    const cGain=Math.min(1.40,Math.max(1.12,220/(maxL-minL+40)));
-    const sBoost=Math.min(1.65,Math.max(1.20,1.0+(0.45-avgS)*1.3));
-    const sharp=2.4;
-
-    document.getElementById('t1').innerText="УЛЬТРА";
-    document.getElementById('t2').innerText="+"+Math.round(shBoost*100)+"%";
-    document.getElementById('t3').innerText=Math.round(cGain*100)+"%";
-    document.getElementById('t4').innerText=Math.round(sBoost*100)+"%";
-
-    const cp=new Uint8ClampedArray(d);
-    for(let i=0;i<cp.length;i+=4){
-        let r=cp[i],g=cp[i+1],b=cp[i+2];
-        r=Math.pow(r/255,1-shBoost*0.48)*255;
-        g=Math.pow(g/255,1-shBoost*0.48)*255;
-        b=Math.pow(b/255,1-shBoost*0.48)*255;
-        r=(r-128)*cGain+128; g=(g-128)*cGain+128; b=(b-128)*cGain+128;
-        const gr=0.299*r+0.587*g+0.114*b;
-        cp[i]=Math.min(255,Math.max(0,gr+(r-gr)*sBoost));
-        cp[i+1]=Math.min(255,Math.max(0,gr+(g-gr)*sBoost));
-        cp[i+2]=Math.min(255,Math.max(0,gr+(b-gr)*sBoost));
-    }
-    for(let y=1;y<h-1;y++){
-        for(let x=1;x<w-1;x++){
-            const i=(y*w+x)*4,up=((y-1)*w+x)*4,dn=((y+1)*w+x)*4,lf=(y*w+(x-1))*4,rg=(y*w+(x+1))*4;
-            for(let k=0;k<3;k++){
-                const cnt=cp[i+k], nb=(cp[up+k]+cp[dn+k]+cp[lf+k]+cp[rg+k])*0.25, det=cnt-nb;
-                d[i+k]=Math.abs(det)>2?Math.min(255,Math.max(0,cnt+det*sharp)):cnt;
-            }
-        }
-    }
-    ctx.putImageData(imgData,0,0);
-}
-
-function save(){
-    const a=document.createElement('a');
-    a.download='OUKITEL_TERMUX_'+Date.now()+'.jpg';
-    a.href=c.toDataURL('image/jpeg',0.96);
-    a.click();
-}
+ui();lg("[СИСТЕМА] Русская среда и оболочка готовы.","#4ad66d");
 </script>
 </body>
 </html>
