@@ -2,108 +2,156 @@
 <html lang="ru">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ОС СВЕД :: ЗАЩИТА ОТ ОШИБОК ОДНОРОДНОСТИ</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>АВТО-ОПТИКА OUKITEL G1</title>
 <style>
-  body { background: #0b0f17; color: #e2e8f0; font-family: sans-serif; margin: 0; padding: 12px; }
-  h2 { color: #38bdf8; margin: 0 0 3px 0; font-size: 17px; }
-  .sub { color: #94a3b8; font-size: 11px; margin-bottom: 10px; }
-  .box { background: #151c28; border-radius: 8px; padding: 11px; margin-bottom: 10px; border: 1px solid #334155; }
-  .warn-box { background: #1f1215; border-left: 4px solid #ef4444; padding: 10px; border-radius: 6px; font-size: 12px; margin-bottom: 10px; line-height: 1.4; }
-  .fix-box { background: #0d1f17; border-left: 4px solid #10b981; padding: 10px; border-radius: 6px; font-size: 12.5px; margin-bottom: 10px; line-height: 1.45; white-space: pre-wrap; }
-  .input-row { display: flex; justify-content: space-between; align-items: center; margin: 7px 0; font-size: 12.5px; }
-  input { width: 85px; padding: 6px; background: #090d14; border: 1px solid #475569; color: #fbbf24; font-weight: bold; border-radius: 4px; text-align: center; font-size: 13px; }
-  button { width: 100%; background: #059669; color: #fff; border: 1px solid #10b981; padding: 11px; border-radius: 6px; font-weight: bold; font-size: 13px; cursor: pointer; margin-top: 6px; }
-  .res-box { background: #090d14; padding: 10px; border-radius: 6px; border: 1px solid #38bdf8; font-size: 12.5px; line-height: 1.45; white-space: pre-wrap; }
+*{box-sizing:border-box;margin:0;padding:0;user-select:none}
+body{background:#0d1117;color:#fff;font-family:sans-serif;display:flex;flex-direction:column;height:100vh;overflow:hidden}
+.top{background:#161b22;padding:10px;text-align:center;border-bottom:2px solid #00e676}
+.top h1{font-size:15px;color:#00e676}
+.top p{font-size:11px;color:#8b949e;margin-top:2px}
+.scr{flex:1;background:#000;position:relative;display:flex;justify-content:center;align-items:center;overflow:hidden}
+video{display:none}
+canvas{max-width:100%;max-height:100%;object-fit:contain}
+.tel{background:#161b22;padding:6px 10px;border-top:1px solid #30363d;display:flex;justify-content:space-around;font-size:11px;color:#8b949e;text-align:center}
+.tel b{color:#00e676;display:block;font-size:12px}
+.ctrl{background:#0d1117;padding:10px;display:flex;flex-direction:column;gap:8px}
+.row{display:flex;gap:8px}
+button,.lbl-btn{flex:1;padding:12px 8px;border:none;border-radius:8px;font-weight:bold;font-size:13px;cursor:pointer;text-align:center;display:block}
+.b-cam{background:#0288d1;color:#fff}
+.b-gal{background:#30363d;color:#fff}
+.b-auto{background:#00e676;color:#000}
+.b-orig{background:#21262d;color:#ffeb3b;border:1px solid #ffeb3b}
+.b-save{background:#ff9100;color:#000;font-size:15px;padding:14px}
+input[type=file]{display:none}
 </style>
 </head>
 <body>
-
-<h2>ОС СВЕД :: КОНТРОЛЬ ОДНОРОДНОСТИ РЕШЁТКИ</h2>
-<div class="sub">Исключение миграции частиц к полюсам магнита (Ориентация без стягивания)</div>
-
-<div class="warn-box">
-  <b style="color:#f87171;">[!] УСТРАНЁННАЯ ОШИБКА ТЕХНОЛОГИИ:</b><br>
-  При установке сильных неодимовых магнитов вплотную к жидкой смеси градиент поля стягивает феррит к краям, оставляя пустой центр (нарушение однородности Δ → 0).
+<div class="top">
+    <h1>ТЕРМИНАЛ ОПТИКИ OUKITEL G1</h1>
+    <p id="st">Адаптивная авто-фокусировка четкости, контраста и цвета</p>
 </div>
-
-<div class="box">
-  <div style="font-size:12.5px; margin-bottom:6px; font-weight:bold; color:#4ade80;">
-    Картина распределения частиц в пластине 100 мм:
-  </div>
-  <svg width="100%" height="70" viewBox="0 0 320 70">
-    <!-- Стальные шины-выравниватели по краям -->
-    <rect x="8" y="10" width="8" height="50" fill="#94a3b8"/>
-    <rect x="304" y="10" width="8" height="50" fill="#94a3b8"/>
-    <!-- Контур формы -->
-    <rect x="30" y="12" width="260" height="46" fill="#0f172a" stroke="#22c55e" stroke-width="2" rx="4"/>
-    <!-- Равномерные ориентированные цепочки в центре и по краям -->
-    <g id="chains" stroke="#38bdf8" stroke-width="2.5" stroke-dasharray="10 6">
-      <line x1="42" y1="23" x2="278" y2="23"/>
-      <line x1="42" y1="35" x2="278" y2="35"/>
-      <line x1="42" y1="47" x2="278" y2="47"/>
-    </g>
-  </svg>
-  <div style="display:flex; justify-content:space-between; font-size:11px; color:#94a3b8;">
-    <span>Шина + Зазор 30 мм</span>
-    <span style="color:#4ade80; font-weight:bold;">Центр заполнен: Однородность 0.98</span>
-    <span>Шина + Зазор 30 мм</span>
-  </div>
+<div class="scr">
+    <video id="v" autoplay playsinline></video>
+    <canvas id="c"></canvas>
 </div>
-
-<div class="fix-box">[ПРАКТИЧЕСКИЙ ПРОТОКОЛ БЕЗ ОШИБОК]:
-1. ВЫДЕРЖКА ВЯЗКОСТИ (Пред-гель): После замеса ждём 35–40 минут до состояния густого мёда. Частица поворачивается по полю на месте, но уплыть к краю уже не может!
-2. СТАЛЬНЫЕ ШИНЫ + ЗАЗОР: Ставим магниты через стальные полосы на удалении 25–35 мм от краёв формы (убираем краевой рывок).
-3. МЕТОД «ПРОТЯЖКИ ПОЛЯ»: Проводим магнитной скобой над формой вдоль пластины 5–7 раз на фазе загустевания и убираем магниты.</div>
-
-<div class="box">
-  <div style="font-weight:bold; color:#fbbf24; margin-bottom:6px;">РАСЧЁТ БЕЗОПАСНОГО РЕЖИМА НАМАГНИЧИВАНИЯ:</div>
-  <div class="input-row">
-    <span>Время выдержки смолы до поля (мин):</span>
-    <input type="number" id="tWait" value="40">
-  </div>
-  <div class="input-row">
-    <span>Дистанция магнита от края формы (мм):</span>
-    <input type="number" id="dMag" value="30">
-  </div>
-  <div class="input-row">
-    <span>Число проходов «магнитной гребёнкой»:</span>
-    <input type="number" id="nPass" value="6">
-  </div>
-  <button onclick="calcHomogeneity()">ПРОВЕРИТЬ ОДНОРОДНОСТЬ ЦЕНТРА ПЛАСТИНЫ</button>
+<div class="tel">
+    <div>Фокус/Четкость<b id="t1">АВТО</b></div>
+    <div>Тени (HDR)<b id="t2">АВТО</b></div>
+    <div>Контраст<b id="t3">АВТО</b></div>
+    <div>Цветность<b id="t4">АВТО</b></div>
 </div>
-
-<div class="res-box" id="resBox"></div>
-
+<div class="ctrl">
+    <div class="row">
+        <button class="b-cam" onclick="startLiveCam()">📹 ЖИВАЯ КАМЕРА</button>
+        <label class="lbl-btn b-gal">🖼️ ФОТО СНЯТЬ/ГАЛЕРЕЯ<input type="file" id="f" accept="image/*"></label>
+    </div>
+    <div class="row">
+        <button class="b-auto" onclick="toggleAuto()" id="btnA">✨ АВТО-УЛУЧШЕНИЕ: ВКЛ</button>
+        <button class="b-orig" ontouchstart="autoOn=false;if(mode=='img')drawImg()" ontouchend="autoOn=true;if(mode=='img')drawImg()">👁️ СРАВНИТЬ</button>
+    </div>
+    <button class="b-save" onclick="save()">💾 СДЕЛАТЬ И СОХРАНИТЬ ЧЕТКИЙ СНИМОК</button>
+</div>
 <script>
-function calcHomogeneity() {
-  let t = parseFloat(document.getElementById("tWait").value) || 0;
-  let d = parseFloat(document.getElementById("dMag").value) || 0;
-  let n = parseFloat(document.getElementById("nPass").value) || 0;
+const v=document.getElementById('v'),c=document.getElementById('c'),ctx=c.getContext('2d',{willReadFrequently:true});
+let mode='none',img=null,autoOn=true;
 
-  let status = "";
-  let odn = 0.98;
-
-  if (t < 25) {
-    status = "ОПАСНОСТЬ БРАКА: Смола слишком жидкая! Частицы сорвутся с места и уплывут к краям. Увеличьте выдержку до 35–45 минут (фаза пред-геля).";
-    odn = 0.55;
-  } else if (d < 20) {
-    status = "ОПАСНОСТЬ БРАКА: Магниты слишком близко к краям (< 20 мм)! Краевой градиент вытянет порошок из середины. Отодвиньте магниты на 25–35 мм и поставьте стальные шины.";
-    odn = 0.68;
-  } else {
-    odn = Math.min(0.99, +(0.92 + (n * 0.01)).toFixed(2));
-    status = "РЕЖИМ ИДЕАЛЕН (ОРИЕНТАЦИЯ БЕЗ МИГРАЦИИ):\n" +
-             "• Вязкость пред-геля удерживает частицы на своих местах.\n" +
-             "• Поле поворачивает диполи в центре пластины в единые силовые нити.\n" +
-             "• Скопление у краёв ИСКЛЮЧЕНО. Однородность по всей длине 100 мм: " + odn;
-  }
-
-  document.getElementById("resBox").innerText =
-    `=== КОНТРОЛЬ ПРАКТИЧЕСКОГО НАВЫКА ===\n` +
-    `Расчётная однородность центра: ${odn}\n\n` + status;
+function toggleAuto(){
+    autoOn=!autoOn;
+    document.getElementById('btnA').innerText=autoOn?"✨ АВТО-УЛУЧШЕНИЕ: ВКЛ":"✨ АВТО-УЛУЧШЕНИЕ: ВЫКЛ";
+    document.getElementById('btnA').style.background=autoOn?"#00e676":"#555";
+    if(mode==='img')drawImg();
 }
 
-calcHomogeneity();
+async function startLiveCam(){
+    try{
+        const s=await navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:"environment"},width:{ideal:1920},height:{ideal:1080}}});
+        v.srcObject=s; mode='cam';
+        document.getElementById('st').innerText="Живая камера: Авто-анализ в реальном времени";
+        requestAnimationFrame(loop);
+    }catch(e){
+        alert("Для живого потока используйте кнопку правее (Снять/Галерея)");
+    }
+}
+
+document.getElementById('f').onchange=e=>{
+    const file=e.target.files[0]; if(!file)return;
+    const i=new Image();
+    i.onload=()=>{img=i; mode='img'; drawImg();};
+    i.src=URL.createObjectURL(file);
+};
+
+function loop(){
+    if(mode==='cam' && v.readyState===v.HAVE_ENOUGH_DATA){
+        c.width=720; c.height=Math.round(720*(v.videoHeight/v.videoWidth));
+        ctx.drawImage(v,0,0,c.width,c.height);
+        if(autoOn) processSmartISP();
+    }
+    if(mode==='cam') requestAnimationFrame(loop);
+}
+
+function drawImg(){
+    if(!img)return;
+    const max=1280; let w=img.width,h=img.height;
+    if(w>max||h>max){if(w>h){h=Math.round(h*(max/w));w=max}else{w=Math.round(w*(max/h));h=max}}
+    c.width=w; c.height=h;
+    ctx.drawImage(img,0,0,w,h);
+    if(autoOn) processSmartISP();
+}
+
+function processSmartISP(){
+    const w=c.width,h=c.height;
+    const imgData=ctx.getImageData(0,0,w,h),d=imgData.data;
+    let sumL=0,sumS=0,dark=0,minL=255,maxL=0;
+    const step=16, samples=(w*h)/4;
+    for(let i=0;i<d.length;i+=step){
+        const r=d[i],g=d[i+1],b=d[i+2];
+        const l=0.299*r+0.587*g+0.114*b;
+        sumL+=l; if(l<85)dark++; if(l<minL)minL=l; if(l>maxL)maxL=l;
+        const mx=Math.max(r,g,b),mn=Math.min(r,g,b);
+        sumS+=mx===0?0:(mx-mn)/mx;
+    }
+    const avgL=sumL/samples, avgS=sumS/samples, darkR=dark/samples;
+    const shBoost=Math.min(0.65,Math.max(0.20,darkR*0.9+(128-avgL)/300));
+    const cGain=Math.min(1.40,Math.max(1.12,220/(maxL-minL+40)));
+    const sBoost=Math.min(1.65,Math.max(1.20,1.0+(0.45-avgS)*1.3));
+    const sharp=2.4;
+
+    document.getElementById('t1').innerText="УЛЬТРА";
+    document.getElementById('t2').innerText="+"+Math.round(shBoost*100)+"%";
+    document.getElementById('t3').innerText=Math.round(cGain*100)+"%";
+    document.getElementById('t4').innerText=Math.round(sBoost*100)+"%";
+
+    const cp=new Uint8ClampedArray(d);
+    for(let i=0;i<cp.length;i+=4){
+        let r=cp[i],g=cp[i+1],b=cp[i+2];
+        r=Math.pow(r/255,1-shBoost*0.48)*255;
+        g=Math.pow(g/255,1-shBoost*0.48)*255;
+        b=Math.pow(b/255,1-shBoost*0.48)*255;
+        r=(r-128)*cGain+128; g=(g-128)*cGain+128; b=(b-128)*cGain+128;
+        const gr=0.299*r+0.587*g+0.114*b;
+        cp[i]=Math.min(255,Math.max(0,gr+(r-gr)*sBoost));
+        cp[i+1]=Math.min(255,Math.max(0,gr+(g-gr)*sBoost));
+        cp[i+2]=Math.min(255,Math.max(0,gr+(b-gr)*sBoost));
+    }
+    for(let y=1;y<h-1;y++){
+        for(let x=1;x<w-1;x++){
+            const i=(y*w+x)*4,up=((y-1)*w+x)*4,dn=((y+1)*w+x)*4,lf=(y*w+(x-1))*4,rg=(y*w+(x+1))*4;
+            for(let k=0;k<3;k++){
+                const cnt=cp[i+k], nb=(cp[up+k]+cp[dn+k]+cp[lf+k]+cp[rg+k])*0.25, det=cnt-nb;
+                d[i+k]=Math.abs(det)>2?Math.min(255,Math.max(0,cnt+det*sharp)):cnt;
+            }
+        }
+    }
+    ctx.putImageData(imgData,0,0);
+}
+
+function save(){
+    const a=document.createElement('a');
+    a.download='OUKITEL_TERMUX_'+Date.now()+'.jpg';
+    a.href=c.toDataURL('image/jpeg',0.96);
+    a.click();
+}
 </script>
 </body>
 </html>
