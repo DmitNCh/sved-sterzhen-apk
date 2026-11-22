@@ -28,8 +28,9 @@ textarea{flex:1;width:100%;background:transparent;border:none;color:#fff;font-si
 .ac{flex:1;padding:10px;overflow-y:auto;display:flex;flex-direction:column;gap:10px}
 .card{background:#0b131e;border:1.5px solid #1e6091;border-radius:10px;padding:10px}
 .cttl{color:#4ad66d;font-size:14px;font-weight:bold;margin-bottom:8px;border-bottom:1px solid #1b263b;padding-bottom:5px}
-.inp{width:100%;background:#060a0f;border:1px solid #2b4c73;color:#fff;padding:8px;border-radius:6px;font-size:14px;margin:4px 0 8px 0}
-.ubtn{background:#14532d;border:1.5px solid #2dc653;color:#fff;padding:12px;border-radius:8px;font-size:13px;font-weight:bold;text-align:center;margin-top:4px}
+.inp{width:100%;background:#060a0f;border:1px solid #2b4c73;color:#fff;padding:8px;border-radius:6px;font-size:14px;margin:4px 0 8px 0;user-select:text;-webkit-user-select:text}
+.ubtn{background:#14532d;border:1.5px solid #2dc653;color:#fff;padding:12px;border-radius:8px;font-size:13px;font-weight:bold;text-align:center;margin-top:4px;display:block;width:100%}
+.ubtn:active{background:#2dc653;color:#000}
 .tbl{background:#030609;border:1.5px solid #2dc653;border-radius:8px;padding:10px;display:flex;justify-content:space-between;margin-bottom:8px}
 .grid{padding:12px;display:grid;grid-template-columns:repeat(2,1fr);gap:10px;overflow-y:auto}
 .tile{background:#0b131e;border:1.5px solid #219ebc;border-radius:10px;padding:14px 8px;text-align:center}
@@ -132,58 +133,193 @@ let cur=Object.keys(D)[0],fc=3,RV={};
 const ca=document.getElementById("ca"),cb=document.getElementById("cb");
 ca.oninput=()=>{D[cur][fc]=ca.value;sv()};
 function sv(){localStorage.setItem("kk_apk_v2",JSON.stringify(D))}
-function lg(t,c="#90e0ef"){cb.innerHTML+=`<div style="color:${c};margin-bottom:2px">${t}</div>`;cb.scrollTop=999}
+function lg(t,c="#90e0ef"){cb.innerHTML+=`<div style="color:${c};margin-bottom:2px">${t}</div>`;cb.scrollTop=9999}
+
 function sm(m){
-  for(let i=1;i<=3;i++){document.getElementById("t"+i).className=i===m?"tb on":"tb";document.getElementById("s"+i).className=i===m?"scr on":"scr"}
-  if(m===2)rApp();if(m===3)rSh();
+  for(let i=1;i<=3;i++){
+    document.getElementById("t"+i).className=i===m?"tb on":"tb";
+    document.getElementById("s"+i).className=i===m?"scr on":"scr";
+  }
+  if(m===2)rApp();
+  if(m===3)rSh();
 }
+
 function ui(){
   document.getElementById("nc").textContent="УЗЛОВ: "+Object.keys(D).length;
   document.getElementById("st").textContent=`УЗЕЛ: [${cur}] | ГРАНЬ: [${fc}] ${F[fc][0]}`;
-  document.getElementById("cf").textContent=F[fc][0];document.getElementById("cn").textContent=`[${cur}]`;
+  document.getElementById("cf").textContent=F[fc][0];
+  document.getElementById("cn").textContent=`[${cur}]`;
   document.getElementById("et").textContent=`МОДУЛЬ ГРАНИ [${F[fc][0]} / ${F[fc][1]}]`;
   ca.value=D[cur][fc]||"";
   for(let i=1;i<=6;i++)document.getElementById("b"+i).className=i===fc?"btn act":"btn";
   const w=document.getElementById("wb");w.innerHTML="";
-  F[fc][2].forEach(c=>{let b=document.createElement("div");b.className="wc";b.textContent=c[0];b.onclick=()=>{ca.value=(ca.value?ca.value+"\n":"")+c[1];D[cur][fc]=ca.value;sv()};w.appendChild(b)});
+  F[fc][2].forEach(c=>{
+    let b=document.createElement("div");
+    b.className="wc";
+    b.textContent=c[0];
+    b.onclick=()=>{ca.value=(ca.value?ca.value+"\n":"")+c[1];D[cur][fc]=ca.value;sv()};
+    w.appendChild(b);
+  });
 }
+
 function sf(n){fc=n;ui();lg(`[КОНТУР] Узел: ${cur} | Грань: ${F[n][0]}`,"#4ad66d")}
-function nn(){let n=prompt("Русское имя нового приложения:","Узел_"+(Object.keys(D).length+1));if(!n)return;n=n.trim().replace(/\s+/g,"_");D[n]=JSON.parse(JSON.stringify(D["Пульт_Сигнала"]));cur=n;RV={};sv();ui()}
+function nn(){
+  let n=prompt("Русское имя нового приложения:","Узел_"+(Object.keys(D).length+1));
+  if(!n)return;
+  n=n.trim().replace(/\s+/g,"_");
+  D[n]=JSON.parse(JSON.stringify(D["Пульт_Сигнала"]));
+  cur=n;RV={};sv();ui();
+}
 function sn(){let k=Object.keys(D);cur=k[(k.indexOf(cur)+1)%k.length];RV={};ui()}
 function pt(){lg(`[ПУТЬ] ${cur}: 01_ВХОД ➔ 02_ПАМЯТЬ ➔ 03_ЛОГИКА ➔ 05_КОНТРОЛЬ ➔ 06_ВЫХОД`,"#ffd166")}
+
 function ex(){
-  let M={},C={},L=[],t=1,st=0,V=x=>!isNaN(parseInt(x))?parseInt(x):(x in C?C[x]:(M[x]||0));
-  (D[cur][2]||"").split("\n").forEach(l=>{let m=l.trim().match(/^(Ячейка|Постоянная)\s+([А-Яа-яЁё0-9_]+)\s*=\s*(-?\d+)/i);if(m){if(m[1].toLowerCase()==="ячейка"){M[m[2]]=(m[2] in RV)?RV[m[2]]:+m[3];L.push(`Такт ${t++} [ПАМЯТЬ]: ${m[2]} = ${M[m[2]]}`)}else{C[m[2]]=+m[3];L.push(`Вплавлено [ПОСТОЯННАЯ]: ${m[2]} = ${m[3]} (0 тактов)`)}}});
-  (D[cur][3]||"").split("\n").forEach(l=>{let s=l.trim(),m;
-    if(m=s.match(/^Усилить\s+([А-Яа-яЁё0-9_]+)\s+в\s+([А-Яа-яЁё0-9_]+)/i)){M[m[1]]=(M[m[1]]||0)*V(m[2]);L.push(`Такт ${t++} [СТЕРЖЕНЬ]: Усилить ${m[1]} => ${M[m[1]]}`)}
-    if(m=s.match(/^Сложить\s+([А-Яа-яЁё0-9_]+)\s*,\s*([А-Яа-яЁё0-9_]+)/i)){M[m[1]]=(M[m[1]]||0)+V(m[2]);L.push(`Такт ${t++} [СТЕРЖЕНЬ]: Сложить ${m[1]} => ${M[m[1]]}`)}
-    if(m=s.match(/^Вычесть\s+([А-Яа-яЁё0-9_]+)\s*,\s*([А-Яа-яЁё0-9_]+)/i)){M[m[1]]=(M[m[1]]||0)-V(m[2]);L.push(`Такт ${t++} [СТЕРЖЕНЬ]: Вычесть ${m[1]} => ${M[m[1]]}`)}
-    if(m=s.match(/^ЗАЛП\s+([А-Яа-яЁё0-9_]+)\s*\(\s*ТАКТОВ\s*=\s*(\d+)\s*,\s*СИЛА\s*=\s*(\d+)\s*\)/i))L.push(`Такт ${t++} [ЗАЛП]: ${m[1]} (Тактов: ${m[2]}, Сила: ${m[3]})`);
+  let M={},C={},L=[],t=1,st=0,zForce=null;
+  let u=D[cur];
+  (u[2]||"").split("\n").forEach(l=>{
+    let m=l.match(/Ячейка\s+([^\s=]+)\s*=\s*(-?\d+(\.\d+)?)/);
+    if(m){
+      let k=m[1];
+      let v=(RV[k]!==undefined && RV[k]!=="")?Number(RV[k]):Number(m[2]);
+      M[k]=v;
+      L.push(`Такт ${t++} [ПАМЯТЬ]: ${k} = ${v}`);
+    }
+    let c=l.match(/Постоянная\s+([^\s=]+)\s*=\s*(-?\d+(\.\d+)?)/);
+    if(c){
+      C[c[1]]=Number(c[2]);
+      L.push(`Вплавлено [ПОСТОЯННАЯ]: ${c[1]} = ${c[2]} (0 тактов)`);
+    }
   });
-  (D[cur][5]||"").split("\n").forEach(l=>{let m=l.trim().match(/^Если\s+([А-Яа-яЁё0-9_]+)\s*([<>!=]+)\s*([А-Яа-яЁё0-9_]+)\s*->\s*([А-Яа-яЁё0-9_]+)/i);if(m){let a=V(m[1]),b=V(m[3]),ok=m[2]==="<"?a<b:a>b;if(ok){st=1;L.push(`Такт ${t++} [КОНТРОЛЬ]: (${a} ${m[2]} ${b}) ➔ СТОП`)}else L.push(`Такт ${t++} [КОНТРОЛЬ]: (${a} ${m[2]} ${b}) ➔ Поток открыт`)}});
-  return {M,L};
+  let gv=x=>(M[x]!==undefined?M[x]:(C[x]!==undefined?C[x]:Number(x)||0));
+
+  (u[3]||"").split("\n").forEach(l=>{
+    let m1=l.match(/Усилить\s+([^\s]+)\s+в\s+(-?\d+(\.\d+)?)/);
+    if(m1 && M[m1[1]]!==undefined){
+      M[m1[1]]*=Number(m1[2]);
+      L.push(`Такт ${t++} [СТЕРЖЕНЬ]: Усилить ${m1[1]} => ${M[m1[1]]}`);
+    }
+    let m2=l.match(/Сложить\s+([^\s,]+)\s*,\s*([^\s]+)/);
+    if(m2 && M[m2[1]]!==undefined){
+      M[m2[1]]+=gv(m2[2]);
+      L.push(`Такт ${t++} [СТЕРЖЕНЬ]: Сложить ${m2[1]} => ${M[m2[1]]}`);
+    }
+    let m3=l.match(/Вычесть\s+([^\s,]+)\s*,\s*([^\s]+)/);
+    if(m3 && M[m3[1]]!==undefined){
+      M[m3[1]]-=gv(m3[2]);
+      L.push(`Такт ${t++} [СТЕРЖЕНЬ]: Вычесть ${m3[1]} => ${M[m3[1]]}`);
+    }
+    let m4=l.match(/ЗАЛП\s+([^\s(]+)\s*\(ТАКТОВ\s*=\s*(\d+)\s*,\s*СИЛА\s*=\s*(\d+)\)/);
+    if(m4){
+      let fk=Object.keys(M)[0];
+      let curVal=fk?M[fk]:m4[3];
+      L.push(`<span style="color:#4ad66d;font-weight:bold">Такт ${t++} [ЗАЛП]: ${m4[1]} (Тактов: ${m4[2]}, Сила: ${curVal})</span>`);
+    }
+  });
+
+  (u[5]||"").split("\n").forEach(l=>{
+    let m=l.match(/Если\s+([^\s><=]+)\s*([><=]+)\s*([^\s-]+)\s*->\s*Стоп/);
+    if(m){
+      let v1=gv(m[1]),v2=gv(m[3]),op=m[2];
+      let cond=(op===">"&&v1>v2)||(op==="<"&&v1<v2)||(op==="=="&&v1===v2)||(op===">="&&v1>=v2)||(op==="<="&&v1<=v2);
+      if(cond){
+        st=1;
+        L.push(`<span style="color:#ff4d6d;font-weight:bold">Такт ${t++} [КОНТРОЛЬ]: (${v1} ${op} ${v2}) ➔ СТОП ПОТОКА!</span>`);
+      }else{
+        L.push(`Такт ${t++} [КОНТРОЛЬ]: (${v1} ${op} ${v2}) ➔ Поток открыт`);
+      }
+    }
+  });
+  return {M,C,L,st};
 }
-function bd(){cb.innerHTML="";let r=ex();r.L.forEach(x=>lg(x));lg(`✔ [УСТАНОВЛЕНО] Приложение «${cur}» собрано! Открываю...`,"#4ad66d");setTimeout(()=>sm(2),500)}
+
+function bd(){
+  let r=ex();
+  lg(`[СБОРКА] Узел [${cur}] успешно сплавлен. Тактов: ${r.L.length}`,"#2dc653");
+  sm(2);
+}
+
+function fireZalp(){
+  let inputs=document.querySelectorAll("#ai input");
+  for(let i=0;i<inputs.length;i++){
+    let vname=inputs[i].getAttribute("data-v");
+    if(vname) RV[vname]=Number(inputs[i].value)||0;
+  }
+  calcAndRenderOutput(true);
+}
+
+function calcAndRenderOutput(flash){
+  const ao=document.getElementById("ao"),al=document.getElementById("al");
+  let res=ex();
+  ao.innerHTML="";
+  (D[cur][6]||"").split("\n").forEach(l=>{
+    let m=l.match(/Табло\s+"([^"]+)"\s*<-\s*([^\s]+)/);
+    if(m){
+      let val=res.M[m[2]]!==undefined?res.M[m[2]]:0;
+      let col=res.st?"#ff4d6d":"#ffd166";
+      let stTxt=res.st?" [СТОП: ПРЕДЕЛ!]":"";
+      ao.innerHTML+=`<div class="tbl" style="border-color:${res.st?'#ff4d6d':'#2dc653'}"><span>${m[1]}${stTxt}</span><span style="color:${col};font-weight:bold;font-size:16px">${val}</span></div>`;
+    }
+  });
+  al.innerHTML=res.L.join("<br>");
+  if(flash){
+    ao.style.transform="scale(0.97)";
+    setTimeout(()=>{ao.style.transform="scale(1)"},120);
+  }
+}
+
 function rApp(){
   document.getElementById("at").textContent="ПРИЛОЖЕНИЕ: "+cur;
-  let r=ex(),ai=document.getElementById("ai"),ao=document.getElementById("ao");ai.innerHTML="";ao.innerHTML="";
-  (D[cur][1]||"").split("\n").forEach(l=>{let m;
-    if(m=l.trim().match(/^Ввод\s+"([^"]+)"\s*->\s*([А-Яа-яЁё0-9_]+)/i)){
-      let k=m[2],v=r.M[k]||0;ai.innerHTML+=`<div style="font-size:12px;color:#a8dadc">${m[1]} (${k}):</div><input class="inp" type="number" value="${v}" onchange="RV['${k}']=+this.value;rApp()">`;
+  const ai=document.getElementById("ai");
+  let defM={};
+  (D[cur][2]||"").split("\n").forEach(l=>{
+    let m=l.match(/Ячейка\s+([^\s=]+)\s*=\s*(-?\d+(\.\d+)?)/);
+    if(m)defM[m[1]]=Number(m[2]);
+  });
+
+  ai.innerHTML="";
+  (D[cur][1]||"").split("\n").forEach(l=>{
+    let m=l.match(/Ввод\s+"([^"]+)"\s*->\s*([^\s]+)/);
+    if(m){
+      let lbl=m[1],v=m[2];
+      if(RV[v]===undefined) RV[v]=defM[v]!==undefined?defM[v]:0;
+      let d=document.createElement("div");
+      d.innerHTML=`<div style="font-size:12px;color:#a8dadc">${lbl} (${v}):</div>`;
+      let inp=document.createElement("input");
+      inp.type="number";
+      inp.className="inp";
+      inp.value=RV[v];
+      inp.setAttribute("data-v",v);
+      inp.oninput=function(){RV[v]=Number(this.value)||0;};
+      d.appendChild(inp);
+      ai.appendChild(d);
     }
-    if(m=l.trim().match(/^Кнопка\s+"([^"]+)"/i))ai.innerHTML+=`<div class="ubtn" onclick="rApp()">▶ ${m[1]}</div>`;
+    let b=l.match(/Кнопка\s+"([^"]+)"\s*->\s*(.+)/);
+    if(b){
+      let btn=document.createElement("button");
+      btn.type="button";
+      btn.className="ubtn";
+      btn.textContent="► "+b[1];
+      btn.onclick=function(){fireZalp();};
+      ai.appendChild(btn);
+    }
   });
-  let r2=ex();
-  (D[cur][6]||"").split("\n").forEach(l=>{let m=l.trim().match(/^Табло\s+"([^"]+)"\s*<-\s*([А-Яа-яЁё0-9_]+)/i);
-    if(m)ao.innerHTML+=`<div class="tbl"><span>${m[1]}</span><b style="color:#ffd166;font-size:18px">${r2.M[m[2]]||0}</b></div>`;
-  });
-  document.getElementById("al").innerHTML=r2.L.join("<br>");
+  calcAndRenderOutput(false);
 }
+
 function rSh(){
-  const g=document.getElementById("sg");g.innerHTML="";
-  Object.keys(D).forEach(k=>{let d=document.createElement("div");d.className="tile";d.innerHTML=`<div style="font-size:24px;color:#4ad66d;margin-bottom:6px">❖</div><b style="color:#fff">${k}</b><div style="font-size:10px;color:#778da9;margin-top:4px">Русский Узел [6 граней]</div>`;d.onclick=()=>{cur=k;RV={};ui();sm(2)};g.appendChild(d)});
+  const sg=document.getElementById("sg");
+  sg.innerHTML="";
+  Object.keys(D).forEach(k=>{
+    let t=document.createElement("div");
+    t.className="tile";
+    t.innerHTML=`<div style="color:#4ad66d;font-weight:bold;margin-bottom:6px">❖ ${k}</div><div style="font-size:10px;color:#778da9">ГРАНЕЙ: 6 | ГОТОВ</div>`;
+    t.onclick=()=>{cur=k;RV={};ui();sm(2)};
+    sg.appendChild(t);
+  });
 }
-ui();lg("[СИСТЕМА] Русская среда и оболочка готовы.","#4ad66d");
+
+ui();
+lg("[СИСТЕМА] Мнемосхема Куба запущена.","#48cae4");
 </script>
 </body>
 </html>
