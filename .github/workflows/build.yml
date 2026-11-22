@@ -1,5 +1,7 @@
 name: Build Sterzhen 2.0
 on: [push]
+permissions:
+  contents: write
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -14,22 +16,23 @@ jobs:
           SDK="/usr/local/lib/android/sdk"
           BT=$(ls -d $SDK/build-tools/* | tail -n 1)
           PL=$(ls -d $SDK/platforms/android-* | tail -n 1)/android.jar
-          mkdir -p build/gen build/obj build/apk
-          "$BT/aapt" package -f -m -J build/gen -S res -M AndroidManifest.xml -I "$PL"
+          mkdir -p build/gen build/obj build/apk assets
+          "$BT/aapt" package -f -m -J build/gen -S res -A assets -M AndroidManifest.xml -I "$PL"
           javac -encoding UTF-8 -source 1.8 -target 1.8 -bootclasspath "$PL" -classpath "$PL" -d build/obj build/gen/ru/sterzhen/app/R.java src/ru/sterzhen/app/MainActivity.java
           "$BT/d8" --lib "$PL" --output build/apk/ build/obj/ru/sterzhen/app/*.class
-          "$BT/aapt" package -f -M AndroidManifest.xml -S res -I "$PL" -F build/u.apk build/apk/
+          "$BT/aapt" package -f -M AndroidManifest.xml -S res -A assets -I "$PL" -F build/u.apk build/apk/
           "$BT/zipalign" -f -p 4 build/u.apk build/a.apk
+          rm -f debug.keystore
           keytool -genkeypair -v -keystore debug.keystore -storepass android -alias a -keypass android -keyalg RSA -keysize 2048 -validity 10000 -dname "CN=S,O=S,C=RU"
-          "$BT/apksigner" sign --ks debug.keystore --ks-pass pass:android --key-pass pass:android --out sterzhen-v2.apk build/a.apk
-      - uses: actions/upload-artifact@v4
-      - name: Выложить чистый APK в репозиторий
+          "$BT/apksigner" sign --ks debug.keystore --ks-pass pass:android --key-pass pass:android --out Кубкод.apk build/a.apk
+      - name: Save APK to Repo
         run: |
-          cp $(find . -name "*.apk" | head -n 1) ./Кубкод.apk
           git config user.name "DmitNCh"
           git config user.email "dmit@local"
-          git add Кубкод.apk
-          git commit -m "Готовый Кубкод.apk" && git push
+          git add -f Кубкод.apk
+          git commit -m "Готовый пакет Кубкод.apk" || true
+          git push
+      - uses: actions/upload-artifact@v4
         with:
           name: sterzhen-v2-apk
-          path: sterzhen-v2.apk
+          path: Кубкод.apk
